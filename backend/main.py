@@ -87,6 +87,11 @@ async def app_page():
     return FileResponse(os.path.join(frontend_dir, "app.html"))
 
 
+@app.get("/icon.svg")
+async def icon():
+    return FileResponse(os.path.join(frontend_dir, "icon.svg"), media_type="image/svg+xml")
+
+
 
 # Serve static assets
 app.mount("/css", StaticFiles(directory=os.path.join(frontend_dir, "css")), name="css")

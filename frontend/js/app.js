@@ -676,37 +676,65 @@ function noteApp() {
                     }
                 }
 
-                // Highlight
-                try {
-                    if (lang && hljs.getLanguage(lang)) {
-                        hljs.highlightElement(block);
-                    } else {
-                        hljs.highlightElement(block);
-                    }
-                } catch (e) {}
-
                 // Add line numbers and language label
                 const pre = block.parentElement;
                 if (!pre || pre.classList.contains('code-processed')) return;
                 pre.classList.add('code-processed', 'code-block');
 
-                // Language label
+                // Highlight — get HTML result
+                let highlighted = '';
+                try {
+                    if (lang && hljs.getLanguage(lang)) {
+                        highlighted = hljs.highlight(block.textContent, { language: lang }).value;
+                    } else {
+                        highlighted = hljs.highlightAuto(block.textContent).value;
+                    }
+                } catch (e) {
+                    highlighted = block.innerHTML;
+                }
+
+                // Split highlighted HTML into lines safely
+                // Close open spans at line end, reopen at next line start
+                const rawLines = highlighted.split('\n');
+                if (rawLines.length > 1 && rawLines[rawLines.length - 1].trim() === '') rawLines.pop();
+
+                let openSpans = [];
+                const processedLines = rawLines.map(function(line) {
+                    // Prepend any spans that were open from previous line
+                    const prefix = openSpans.map(s => s).join('');
+                    const fullLine = prefix + line;
+
+                    // Track open/close spans
+                    const opens = (line.match(/<span[^>]*>/g) || []);
+                    const closes = (line.match(/<\/span>/g) || []);
+
+                    // Update open spans stack
+                    for (const tag of opens) openSpans.push(tag);
+                    for (let i = 0; i < closes.length; i++) openSpans.pop();
+
+                    // Close any remaining open spans at end of this line
+                    const suffix = openSpans.map(() => '</span>').join('');
+
+                    return fullLine + suffix;
+                });
+
+                block.innerHTML = processedLines.map(function(line, i) {
+                    return '<span class="code-line"><span class="line-number">' + (i + 1) + '</span><span class="line-content">' + (line || ' ') + '</span></span>';
+                }).join('');
+
+                // Wrap pre in container for sticky label
+                const wrapper = document.createElement('div');
+                wrapper.className = 'code-block-wrapper';
+                pre.parentNode.insertBefore(wrapper, pre);
+                wrapper.appendChild(pre);
+
+                // Language label (outside pre, inside wrapper)
                 if (lang) {
                     const label = document.createElement('span');
                     label.className = 'code-lang-label';
                     label.textContent = lang;
-                    pre.style.position = 'relative';
-                    pre.insertBefore(label, pre.firstChild);
+                    wrapper.appendChild(label);
                 }
-
-                // Line numbers
-                const html = block.innerHTML;
-                const lines = html.split('\n');
-                if (lines.length > 1 && lines[lines.length - 1].trim() === '') lines.pop();
-
-                block.innerHTML = lines.map(function(line, i) {
-                    return '<span class="code-line"><span class="line-number">' + (i + 1) + '</span><span class="line-content">' + (line || ' ') + '</span></span>';
-                }).join('\n');
             });
 
             // Mermaid diagrams

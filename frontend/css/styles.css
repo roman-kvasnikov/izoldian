@@ -25,7 +25,7 @@ body {
     background: var(--bg) !important;
     color: var(--text) !important;
     font-family: 'Fira Code', monospace;
-    font-size: 15px;
+    font-size: 16px;
 }
 
 /* Icon rail */
@@ -171,17 +171,18 @@ input::placeholder {
 
 .markdown-body pre.code-block code {
     background: none;
-    padding: 0.15em 0;
+    padding: 0.2em 0;
     color: var(--text);
-    font-size: 0.85em;
+    font-size: 1em;
     display: block;
-    line-height: 1.1;
+    line-height: 1.45;
     counter-reset: line;
 }
 
 .markdown-body pre.code-block .code-line {
     display: block;
     padding: 0 1em 0 0;
+    line-height: inherit;
 }
 
 .markdown-body pre.code-block .code-line:hover {
@@ -190,9 +191,9 @@ input::placeholder {
 
 .markdown-body pre.code-block .line-number {
     display: inline-block;
-    width: 3.5em;
+    width: 3em;
     text-align: right;
-    padding-right: 1em;
+    padding-right: 0.8em;
     margin-right: 0.8em;
     color: var(--text-muted);
     opacity: 0.4;
@@ -205,7 +206,16 @@ input::placeholder {
     display: inline;
 }
 
-.markdown-body pre.code-block .code-lang-label {
+.markdown-body .code-block-wrapper {
+    position: relative;
+    margin: 0.8em 0;
+}
+
+.markdown-body .code-block-wrapper pre.code-block {
+    margin: 0;
+}
+
+.markdown-body .code-block-wrapper .code-lang-label {
     position: absolute;
     top: 0;
     right: 0;
@@ -217,7 +227,10 @@ input::placeholder {
     letter-spacing: 0.05em;
     user-select: none;
     border-bottom-left-radius: 6px;
+    border-top-right-radius: 8px;
     background: var(--border);
+    z-index: 1;
+    pointer-events: none;
 }
 
 /* Fallback for pre without code-block class */
@@ -234,7 +247,8 @@ input::placeholder {
     background: none;
     padding: 0;
     color: var(--text);
-    font-size: 0.875em;
+    font-size: 0.95em;
+    line-height: 1.5;
 }
 
 .markdown-body blockquote {
@@ -337,6 +351,13 @@ input::placeholder {
     background: var(--accent);
     color: #fff;
 }
+
+/* Global icon size increase */
+svg.w-5 { width: 1.6rem !important; height: 1.6rem !important; }
+
+/* Increase small text in menus/sidebar */
+.text-sm { font-size: 0.95rem !important; }
+.text-xs { font-size: 0.8rem !important; }
 
 /* Focus ring */
 *:focus-visible {

@@ -12,6 +12,7 @@ services:
       # - PORT=8000
       # - DATA_DIR=/app/data
       # - DB_PATH=/app/data/izoldian.db
+      # - SESSION_MAX_AGE_DAYS=7
 
       # Authentication
       # - USER_SIGNUP=true
