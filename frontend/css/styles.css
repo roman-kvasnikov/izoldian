@@ -24,7 +24,7 @@
 body {
     background: var(--bg) !important;
     color: var(--text) !important;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Fira Code', monospace;
     font-size: 15px;
 }
 
@@ -171,11 +171,11 @@ input::placeholder {
 
 .markdown-body pre.code-block code {
     background: none;
-    padding: 0.3em 0;
+    padding: 0.15em 0;
     color: var(--text);
     font-size: 0.85em;
     display: block;
-    line-height: 1.15;
+    line-height: 1.1;
     counter-reset: line;
 }
 
