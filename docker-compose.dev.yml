@@ -3,7 +3,7 @@ name: izoldian
 services:
   izoldian:
     container_name: izoldian
-    image: ghcr.io/roman-kvasnikov/izoldian:latest
+    build: .
     restart: unless-stopped
     environment:
       # - CORS_ORIGINS=*

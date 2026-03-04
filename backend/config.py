@@ -1,4 +1,3 @@
-import os
 from pydantic_settings import BaseSettings
 
 
@@ -6,11 +5,10 @@ class Settings(BaseSettings):
     # Server
     host: str = "0.0.0.0"
     port: int = 8000
-    secret_key: str = "change-me-in-production"
 
     # Paths
-    data_dir: str = os.environ.get("DATA_DIR", "./data")
-    db_path: str = os.environ.get("DB_PATH", "./data/izoldian.db")
+    data_dir: str = "./data"
+    db_path: str = "./data/izoldian.db"
 
     # Session
     session_max_age_days: int = 7
