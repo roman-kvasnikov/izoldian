@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -54,10 +54,10 @@
 				x-show="mode === 'login'"
 				class="bg-gray-800 rounded-xl p-6 shadow-xl border border-gray-700"
 			>
-				<h2 class="text-xl font-semibold mb-4">Вход</h2>
+				<h2 class="text-xl font-semibold mb-4">Sign In</h2>
 				<form @submit.prevent="login()">
 					<div class="mb-4">
-						<label class="block text-sm text-gray-400 mb-1">Логин</label>
+						<label class="block text-sm text-gray-400 mb-1">Username</label>
 						<input
 							x-model="username"
 							type="text"
@@ -68,7 +68,7 @@
 						/>
 					</div>
 					<div class="mb-6">
-						<label class="block text-sm text-gray-400 mb-1">Пароль</label>
+						<label class="block text-sm text-gray-400 mb-1">Password</label>
 						<input
 							x-model="password"
 							type="password"
@@ -83,8 +83,8 @@
 						:disabled="loading"
 						class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition disabled:opacity-50"
 					>
-						<span x-show="!loading">Войти</span>
-						<span x-show="loading">Вход...</span>
+						<span x-show="!loading">Sign In</span>
+						<span x-show="loading">Signing in...</span>
 					</button>
 				</form>
 
@@ -93,7 +93,7 @@
 					<div class="relative flex items-center justify-center my-3">
 						<div class="border-t border-gray-600 w-full"></div>
 						<span class="bg-gray-800 px-3 text-sm text-gray-500 absolute"
-							>или</span
+							>or</span
 						>
 					</div>
 					<button
@@ -114,17 +114,17 @@
 								d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
 							/>
 						</svg>
-						Войти через Authelia
+						Sign in with Authelia
 					</button>
 				</div>
 
 				<p class="text-center text-sm text-gray-400 mt-4">
-					Нет аккаунта?
+					Don't have an account?
 					<a
 						href="#"
 						@click.prevent="mode = 'register'; error = ''"
 						class="text-blue-400 hover:text-blue-300"
-						>Зарегистрироваться</a
+						>Sign Up</a
 					>
 				</p>
 			</div>
@@ -134,10 +134,10 @@
 				x-show="mode === 'register'"
 				class="bg-gray-800 rounded-xl p-6 shadow-xl border border-gray-700"
 			>
-				<h2 class="text-xl font-semibold mb-4">Регистрация</h2>
+				<h2 class="text-xl font-semibold mb-4">Create Account</h2>
 				<form @submit.prevent="register()">
 					<div class="mb-4">
-						<label class="block text-sm text-gray-400 mb-1">Логин</label>
+						<label class="block text-sm text-gray-400 mb-1">Username</label>
 						<input
 							x-model="username"
 							type="text"
@@ -147,18 +147,18 @@
 							placeholder="username (a-z, 0-9, -, _)"
 						/>
 						<p class="text-xs text-gray-500 mt-1">
-							Минимум 3 символа: буквы, цифры, - и _
+							Min 3 characters: letters, digits, - and _
 						</p>
 					</div>
 					<div class="mb-6">
-						<label class="block text-sm text-gray-400 mb-1">Пароль</label>
+						<label class="block text-sm text-gray-400 mb-1">Password</label>
 						<input
 							x-model="password"
 							type="password"
 							required
 							autocomplete="new-password"
 							class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 text-white placeholder-gray-500"
-							placeholder="Минимум 6 символов"
+							placeholder="Min 6 characters"
 						/>
 					</div>
 					<button
@@ -166,17 +166,17 @@
 						:disabled="loading"
 						class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 rounded-lg transition disabled:opacity-50"
 					>
-						<span x-show="!loading">Создать аккаунт</span>
-						<span x-show="loading">Создание...</span>
+						<span x-show="!loading">Create Account</span>
+						<span x-show="loading">Creating...</span>
 					</button>
 				</form>
 				<p class="text-center text-sm text-gray-400 mt-4">
-					Уже есть аккаунт?
+					Already have an account?
 					<a
 						href="#"
 						@click.prevent="mode = 'login'; error = ''"
 						class="text-blue-400 hover:text-blue-300"
-						>Войти</a
+						>Sign In</a
 					>
 				</p>
 			</div>
@@ -224,12 +224,12 @@
 							})
 							if (!resp.ok) {
 								const data = await resp.json()
-								this.error = data.detail || 'Ошибка входа'
+								this.error = data.detail || 'Login failed'
 								return
 							}
 							window.location.href = '/app'
 						} catch (e) {
-							this.error = 'Ошибка соединения'
+							this.error = 'Connection error'
 						} finally {
 							this.loading = false
 						}
@@ -249,12 +249,12 @@
 							})
 							if (!resp.ok) {
 								const data = await resp.json()
-								this.error = data.detail || 'Ошибка регистрации'
+								this.error = data.detail || 'Registration failed'
 								return
 							}
 							window.location.href = '/app'
 						} catch (e) {
-							this.error = 'Ошибка соединения'
+							this.error = 'Connection error'
 						} finally {
 							this.loading = false
 						}
@@ -267,7 +267,7 @@
 							const data = await resp.json()
 							window.location.href = data.url
 						} catch (e) {
-							this.error = 'Ошибка OIDC'
+							this.error = 'OIDC error'
 							this.loading = false
 						}
 					},

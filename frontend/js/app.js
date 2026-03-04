@@ -55,7 +55,7 @@ function noteApp() {
         // Locales (loaded from API)
         availableLocales: [],
         translations: {},
-        currentLocale: localStorage.getItem('izoldian-locale') || 'ru-RU',
+        currentLocale: localStorage.getItem('izoldian-locale') || 'en-US',
 
         // Settings dialog
         showSettings: false,
