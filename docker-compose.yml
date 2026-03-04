@@ -6,7 +6,7 @@ services:
     image: ghcr.io/roman-kvasnikov/izoldian:latest
     restart: unless-stopped
     environment:
-      # - CORS_ORIGINS=*
+      - CORS_ORIGINS=*
 
       # - HOST=0.0.0.0
       # - PORT=8000
