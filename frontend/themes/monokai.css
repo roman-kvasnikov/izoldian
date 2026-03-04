@@ -1,0 +1,21 @@
+/* Monokai Theme */
+/* @theme-type: dark */
+/* @hljs: monokai */
+:root[data-theme="monokai"] {
+    --bg: #272822;
+    --sidebar: #1e1f1a;
+    --rail: #171812;
+    --border: #3e3d32;
+    --text: #f8f8f2;
+    --text-bright: #ffffff;
+    --text-muted: #75715e;
+    --text-faint: #5c5a4f;
+    --accent: #a6e22e;
+    --editor-bg: #272822;
+    --preview-bg: #272822;
+    --surface: #3e3d32;
+    --surface-hover: #4e4d42;
+    --input-bg: #4e4d42;
+    --overlay: rgba(0, 0, 0, 0.6);
+    --active-item: rgba(166, 226, 46, 0.15);
+}

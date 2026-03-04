@@ -1,0 +1,101 @@
+{
+  "_meta": { "code": "en-US", "name": "English", "flag": "\ud83c\uddfa\ud83c\uddf8" },
+  "sidebar": {
+    "files": "Files",
+    "search": "Search",
+    "tags": "Tags",
+    "outline": "Outline",
+    "graph": "Graph",
+    "new_note": "New note",
+    "new_folder": "New folder",
+    "no_tags": "No tags",
+    "no_headings": "No headings",
+    "nothing_found": "Nothing found"
+  },
+  "editor": {
+    "edit": "Editor",
+    "split": "Split view",
+    "preview": "Preview",
+    "select_note": "Select a note or create a new one",
+    "shortcut_new": "Ctrl+N — new note",
+    "shortcut_search": "Ctrl+P — quick search"
+  },
+  "notes": {
+    "new_note": "New note",
+    "note_name_placeholder": "Note name (without .md)",
+    "delete_confirm": "Delete \"{name}\"?",
+    "rename": "Rename note",
+    "rename_placeholder": "New name (without .md)",
+    "folder_label": "Folder"
+  },
+  "folders": {
+    "new_folder": "New folder",
+    "folder_name_placeholder": "Folder name",
+    "inside_label": "Inside",
+    "delete_confirm": "Delete folder \"{name}\" and all its contents?"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "create": "Create",
+    "close": "Close",
+    "rename": "Rename",
+    "delete": "Delete",
+    "loading": "Loading...",
+    "copied": "Copied!",
+    "copy": "Copy"
+  },
+  "share": {
+    "title": "Share note",
+    "not_shared": "This note is not shared yet. Create a public link so anyone can read it without signing in.",
+    "create_link": "Create link",
+    "shared_label": "Note is accessible via public link:",
+    "revoke": "Revoke sharing",
+    "revoke_confirm": "Revoke sharing for this note?"
+  },
+  "settings": {
+    "title": "Settings",
+    "theme": "Theme",
+    "language": "Language",
+    "account": "Account",
+    "logout": "Log out"
+  },
+  "format": {
+    "bold": "Bold",
+    "italic": "Italic",
+    "strikethrough": "Strikethrough",
+    "code": "Code",
+    "h1": "Heading 1",
+    "h2": "Heading 2",
+    "h3": "Heading 3",
+    "ul": "Bulleted list",
+    "ol": "Numbered list",
+    "checklist": "Checklist",
+    "blockquote": "Quote",
+    "link": "Link",
+    "image": "Image",
+    "table": "Table",
+    "codeblock": "Code block",
+    "hr": "Horizontal line"
+  },
+  "graph": {
+    "title": "Knowledge Graph"
+  },
+  "search": {
+    "placeholder": "Search...",
+    "matches": "matches"
+  },
+  "quick_switcher": {
+    "placeholder": "Search note..."
+  },
+  "login": {
+    "title": "Sign In",
+    "username": "Username",
+    "password": "Password",
+    "sign_in": "Sign In",
+    "register": "Register",
+    "or_register": "No account?",
+    "or_login": "Already have an account?",
+    "oidc_login": "Sign in with Authelia",
+    "register_title": "Registration"
+  }
+}

@@ -1,0 +1,21 @@
+/* Tokyo Night Theme */
+/* @theme-type: dark */
+/* @hljs: tokyo-night-dark */
+:root[data-theme="tokyo-night"] {
+    --bg: #1a1b26;
+    --sidebar: #16161e;
+    --rail: #101014;
+    --border: #292e42;
+    --text: #c0caf5;
+    --text-bright: #e0e4ff;
+    --text-muted: #565f89;
+    --text-faint: #414868;
+    --accent: #7aa2f7;
+    --editor-bg: #1a1b26;
+    --preview-bg: #1a1b26;
+    --surface: #24283b;
+    --surface-hover: #292e42;
+    --input-bg: #292e42;
+    --overlay: rgba(0, 0, 0, 0.6);
+    --active-item: rgba(122, 162, 247, 0.15);
+}

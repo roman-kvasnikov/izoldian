@@ -1,0 +1,21 @@
+/* Solarized Dark Theme */
+/* @theme-type: dark */
+/* @hljs: solarized-dark */
+:root[data-theme="solarized-dark"] {
+    --bg: #002b36;
+    --sidebar: #00232d;
+    --rail: #001b25;
+    --border: #073642;
+    --text: #839496;
+    --text-bright: #eee8d5;
+    --text-muted: #586e75;
+    --text-faint: #465a61;
+    --accent: #268bd2;
+    --editor-bg: #002b36;
+    --preview-bg: #002b36;
+    --surface: #073642;
+    --surface-hover: #0a4050;
+    --input-bg: #0a4050;
+    --overlay: rgba(0, 0, 0, 0.6);
+    --active-item: rgba(38, 139, 210, 0.15);
+}

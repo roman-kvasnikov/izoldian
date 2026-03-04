@@ -1,0 +1,21 @@
+/* Catppuccin Mocha Theme */
+/* @theme-type: dark */
+/* @hljs: catppuccin-mocha */
+:root[data-theme="catppuccin-mocha"] {
+    --bg: #1e1e2e;
+    --sidebar: #181825;
+    --rail: #11111b;
+    --border: #313244;
+    --text: #cdd6f4;
+    --text-bright: #eff1f5;
+    --text-muted: #6c7086;
+    --text-faint: #585b70;
+    --accent: #cba6f7;
+    --editor-bg: #1e1e2e;
+    --preview-bg: #1e1e2e;
+    --surface: #313244;
+    --surface-hover: #45475a;
+    --input-bg: #45475a;
+    --overlay: rgba(0, 0, 0, 0.6);
+    --active-item: rgba(203, 166, 247, 0.15);
+}

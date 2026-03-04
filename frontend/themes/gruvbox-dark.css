@@ -1,0 +1,21 @@
+/* Gruvbox Dark Theme */
+/* @theme-type: dark */
+/* @hljs: gruvbox-dark */
+:root[data-theme="gruvbox-dark"] {
+    --bg: #282828;
+    --sidebar: #1d2021;
+    --rail: #171717;
+    --border: #3c3836;
+    --text: #ebdbb2;
+    --text-bright: #fbf1c7;
+    --text-muted: #a89984;
+    --text-faint: #7c6f64;
+    --accent: #fabd2f;
+    --editor-bg: #282828;
+    --preview-bg: #282828;
+    --surface: #3c3836;
+    --surface-hover: #504945;
+    --input-bg: #504945;
+    --overlay: rgba(0, 0, 0, 0.6);
+    --active-item: rgba(250, 189, 47, 0.15);
+}

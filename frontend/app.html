@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Izoldian</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
+    <link id="hljs-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-gray-900 text-gray-100 h-screen overflow-hidden">
+
+<div x-data="noteApp()" x-init="init()" class="flex h-screen" @keydown.window="handleKeydown($event)">
+
+    <!-- Icon Rail -->
+    <div id="icon-rail" class="w-14 bg-gray-950 flex flex-col items-center py-3 gap-1.5 border-r border-gray-800 shrink-0">
+        <button @click="if(isMobile){sidebarOpen=true}; sidebarPanel='files'" :class="sidebarPanel === 'files' ? 'bg-gray-700 text-blue-400' : 'text-gray-500 hover:text-gray-300'" class="w-10 h-10 rounded-lg flex items-center justify-center transition" :title="t('sidebar.files')">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+        </button>
+        <button @click="if(isMobile){sidebarOpen=true}; sidebarPanel='search'" :class="sidebarPanel === 'search' ? 'bg-gray-700 text-blue-400' : 'text-gray-500 hover:text-gray-300'" class="w-10 h-10 rounded-lg flex items-center justify-center transition" :title="t('sidebar.search')">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </button>
+        <button @click="if(isMobile){sidebarOpen=true}; sidebarPanel='tags'" :class="sidebarPanel === 'tags' ? 'bg-gray-700 text-blue-400' : 'text-gray-500 hover:text-gray-300'" class="w-10 h-10 rounded-lg flex items-center justify-center transition" :title="t('sidebar.tags')">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+        </button>
+        <button @click="if(isMobile){sidebarOpen=true}; sidebarPanel='outline'" :class="sidebarPanel === 'outline' ? 'bg-gray-700 text-blue-400' : 'text-gray-500 hover:text-gray-300'" class="w-10 h-10 rounded-lg flex items-center justify-center transition" :title="t('sidebar.outline')">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+        </button>
+        <button @click="toggleGraph()" :class="showGraph ? 'bg-gray-700 text-blue-400' : 'text-gray-500 hover:text-gray-300'" class="w-10 h-10 rounded-lg flex items-center justify-center transition" :title="t('sidebar.graph')">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2" stroke-width="2"/><circle cx="18" cy="18" r="2" stroke-width="2"/><circle cx="18" cy="6" r="2" stroke-width="2"/><path stroke-width="2" d="M8 6h8M7 8l9 8"/></svg>
+        </button>
+
+        <div class="flex-1"></div>
+
+        <!-- Settings button -->
+        <button @click="showSettings = true" class="w-10 h-10 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-300 transition" :title="t('settings.title')">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </button>
+    </div>
+
+    <!-- Sidebar backdrop (mobile) -->
+    <div x-show="isMobile && sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 bg-black/50 z-30" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" x-show="!isMobile || sidebarOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full"
+         class="w-72 bg-gray-850 border-r border-gray-800 flex flex-col shrink-0 overflow-hidden" style="background: var(--sidebar);"
+         :style="isMobile ? {} : { width: sidebarWidth + 'px' }">
+
+        <!-- Sidebar Header -->
+        <div class="p-3 border-b border-gray-800 flex items-center justify-between">
+            <span class="text-base font-medium text-gray-300" x-text="sidebarTitle()"></span>
+            <div class="flex items-center gap-1.5">
+                <template x-if="sidebarPanel === 'files'">
+                    <button @click="showNewNoteDialog()" class="text-gray-500 hover:text-gray-300 transition" :title="t('sidebar.new_note')">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    </button>
+                </template>
+                <template x-if="sidebarPanel === 'files'">
+                    <button @click="showNewFolderDialog()" class="text-gray-500 hover:text-gray-300 transition" :title="t('sidebar.new_folder')">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                    </button>
+                </template>
+                <template x-if="isMobile">
+                    <button @click="sidebarOpen = false" class="text-gray-500 hover:text-gray-300 transition ml-1">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </template>
+            </div>
+        </div>
+
+        <!-- Files Panel (rendered via JS for recursive depth) -->
+        <div x-show="sidebarPanel === 'files'" class="flex-1 overflow-y-auto p-2">
+            <div x-ref="fileTreeContainer" x-html="renderFileTreeHTML(fileTree, 0) || ''"></div>
+        </div>
+
+        <!-- Search Panel -->
+        <div x-show="sidebarPanel === 'search'" class="flex-1 overflow-y-auto flex flex-col">
+            <div class="p-2">
+                <input x-model="searchQuery" @input.debounce.300ms="doSearch()" type="text" :placeholder="t('search.placeholder')"
+                    class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 text-white placeholder-gray-500">
+            </div>
+            <div class="flex-1 overflow-y-auto px-2">
+                <template x-for="result in searchResults" :key="result.path">
+                    <div @click="openNote(result.path)" class="p-2.5 rounded-lg hover:bg-gray-800 cursor-pointer mb-1">
+                        <div class="text-sm text-gray-200 font-medium" x-text="result.name"></div>
+                        <div class="text-xs text-gray-500 mt-0.5" x-text="result.path"></div>
+                        <div class="text-xs text-gray-400 mt-1" x-text="result.snippets?.[0]?.substring(0, 100)"></div>
+                        <div class="text-xs text-blue-400 mt-0.5" x-text="result.matches + ' ' + t('search.matches')"></div>
+                    </div>
+                </template>
+                <div x-show="searchQuery && searchResults.length === 0" class="text-sm text-gray-500 p-2" x-text="t('sidebar.nothing_found')"></div>
+            </div>
+        </div>
+
+        <!-- Tags Panel -->
+        <div x-show="sidebarPanel === 'tags'" class="flex-1 overflow-y-auto p-2">
+            <div class="flex flex-wrap gap-2">
+                <template x-for="tag in allTags" :key="tag.name">
+                    <button @click="toggleTagFilter(tag.name)"
+                        class="px-3 py-1.5 rounded-full text-sm font-medium transition"
+                        :class="selectedTags.includes(tag.name) ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'">
+                        <span x-text="tag.name"></span>
+                        <span class="ml-1 opacity-60" x-text="'(' + tag.count + ')'"></span>
+                    </button>
+                </template>
+            </div>
+            <div x-show="allTags.length === 0" class="text-sm text-gray-500 mt-2" x-text="t('sidebar.no_tags')"></div>
+        </div>
+
+        <!-- Outline Panel -->
+        <div x-show="sidebarPanel === 'outline'" class="flex-1 overflow-y-auto p-2">
+            <template x-for="heading in outline" :key="heading.id">
+                <div @click="scrollToHeading(heading.id)" class="py-1.5 px-2 rounded cursor-pointer text-sm text-gray-400 hover:bg-gray-800 hover:text-gray-200 truncate"
+                    :style="{ paddingLeft: (heading.level - 1) * 14 + 8 + 'px' }">
+                    <span x-text="heading.text"></span>
+                </div>
+            </template>
+            <div x-show="outline.length === 0" class="text-sm text-gray-500" x-text="t('sidebar.no_headings')"></div>
+        </div>
+    </div>
+
+    <!-- Sidebar Resize Handle -->
+    <div id="resize-handle" class="w-1 bg-gray-800 cursor-col-resize hover:bg-blue-600 transition"
+         @mousedown="startResize($event)"></div>
+
+    <!-- Main Content Area -->
+    <div id="main-content" class="flex-1 flex flex-col overflow-hidden">
+
+        <!-- Toolbar: title bar -->
+        <div class="bg-gray-850 border-b border-gray-800 flex items-center px-4 py-2.5 gap-3 shrink-0" style="background: var(--sidebar);">
+            <!-- Breadcrumb -->
+            <div class="flex items-center gap-2 text-gray-400 flex-1 min-w-0">
+                <template x-if="currentNote">
+                    <div class="flex items-center gap-2 truncate">
+                        <span class="text-gray-500 text-sm" x-text="currentNote.path.replace(currentNote.path.split('/').pop(), '')"></span>
+                        <span @dblclick="showRenameDialog()" class="text-gray-100 text-lg font-semibold cursor-pointer hover:text-blue-300" x-text="currentNote.name" title="Двойной клик для переименования"></span>
+                        <button @click="showRenameDialog()" class="text-gray-600 hover:text-gray-300 transition ml-1" :title="t('notes.rename') + ' (F2)'">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        </button>
+                        <button @click="openShareDialog()" class="transition ml-0.5" :class="isNoteShared(currentNote.path) ? 'text-green-500 hover:text-green-400' : 'text-gray-600 hover:text-gray-300'" :title="t('share.title')">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+                        </button>
+                        <button @click="deleteCurrentNote()" class="text-gray-600 hover:text-red-400 transition ml-0.5" :title="t('common.delete')">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                        <span x-show="unsaved" class="text-yellow-500 text-base ml-1">&#9679;</span>
+                    </div>
+                </template>
+                <template x-if="!currentNote">
+                    <span class="text-gray-500" x-text="t('editor.select_note')"></span>
+                </template>
+            </div>
+
+            <!-- View mode buttons -->
+            <div class="flex items-center gap-0.5 bg-gray-800 rounded-lg p-0.5">
+                <button @click="viewMode = 'edit'" :class="viewMode === 'edit' ? 'bg-gray-700 text-white' : 'text-gray-500'" class="px-2.5 py-1.5 rounded text-xs transition" :title="t('editor.edit')">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                </button>
+                <button @click="viewMode = 'split'" :class="viewMode === 'split' ? 'bg-gray-700 text-white' : 'text-gray-500'" class="px-2.5 py-1.5 rounded text-xs transition" :title="t('editor.split')">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7"/></svg>
+                </button>
+                <button @click="viewMode = 'preview'" :class="viewMode === 'preview' ? 'bg-gray-700 text-white' : 'text-gray-500'" class="px-2.5 py-1.5 rounded text-xs transition" :title="t('editor.preview')">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Editor & Preview -->
+        <div class="flex-1 flex overflow-hidden" x-show="currentNote">
+
+            <!-- Editor -->
+            <div class="flex-1 flex flex-col overflow-hidden" x-show="viewMode === 'edit' || viewMode === 'split'"
+                 :class="viewMode === 'split' ? 'w-1/2 border-r border-gray-800' : ''">
+
+                <!-- Format toolbar -->
+                <div id="format-toolbar" class="flex items-center gap-0.5 px-3 py-2 border-b border-gray-800 bg-gray-900 shrink-0 flex-wrap">
+                    <button @click="formatText('bold')" class="format-btn" :title="t('format.bold') + ' (Ctrl+B)'"><b>B</b></button>
+                    <button @click="formatText('italic')" class="format-btn italic" :title="t('format.italic') + ' (Ctrl+I)'"><i>I</i></button>
+                    <button @click="formatText('strikethrough')" class="format-btn line-through" :title="t('format.strikethrough')"><s>S</s></button>
+                    <button @click="formatText('code')" class="format-btn font-mono" :title="t('format.code')">&lt;/&gt;</button>
+                    <span class="w-px h-6 bg-gray-700 mx-1.5"></span>
+                    <button @click="formatText('h1')" class="format-btn font-bold" :title="t('format.h1')">H1</button>
+                    <button @click="formatText('h2')" class="format-btn font-bold" :title="t('format.h2')">H2</button>
+                    <button @click="formatText('h3')" class="format-btn font-bold" :title="t('format.h3')">H3</button>
+                    <span class="w-px h-6 bg-gray-700 mx-1.5"></span>
+                    <button @click="formatText('ul')" class="format-btn" :title="t('format.ul')">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/><circle cx="1" cy="6" r="1" fill="currentColor"/><circle cx="1" cy="12" r="1" fill="currentColor"/><circle cx="1" cy="18" r="1" fill="currentColor"/></svg>
+                    </button>
+                    <button @click="formatText('ol')" class="format-btn" :title="t('format.ol')">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+                    </button>
+                    <button @click="formatText('checklist')" class="format-btn" :title="t('format.checklist')">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                    </button>
+                    <span class="w-px h-6 bg-gray-700 mx-1.5"></span>
+                    <button @click="formatText('blockquote')" class="format-btn" :title="t('format.blockquote')">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg>
+                    </button>
+                    <button @click="formatText('link')" class="format-btn" :title="t('format.link') + ' (Ctrl+K)'">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                    </button>
+                    <button @click="formatText('image')" class="format-btn" :title="t('format.image')">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    </button>
+                    <button @click="formatText('table')" class="format-btn" :title="t('format.table')">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18M10 3v18M14 3v18M3 6a3 3 0 013-3h12a3 3 0 013 3v12a3 3 0 01-3 3H6a3 3 0 01-3-3V6z"/></svg>
+                    </button>
+                    <button @click="formatText('codeblock')" class="format-btn" :title="t('format.codeblock')">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                    </button>
+                    <button @click="formatText('hr')" class="format-btn" :title="t('format.hr')">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M3 12h18"/></svg>
+                    </button>
+                </div>
+
+                <textarea x-ref="editor" x-model="editorContent"
+                    @input.debounce.1000ms="autoSave()"
+                    class="w-full flex-1 bg-gray-900 text-gray-200 p-5 resize-none focus:outline-none font-mono text-base leading-relaxed"
+                    spellcheck="false"></textarea>
+            </div>
+
+            <!-- Preview -->
+            <div class="flex-1 overflow-y-auto" x-show="viewMode === 'preview' || viewMode === 'split'"
+                 :class="viewMode === 'split' ? 'w-1/2' : ''">
+                <div class="mx-auto w-full max-w-3xl"><div x-ref="preview" class="markdown-body p-6" x-html="renderedContent"></div></div>
+            </div>
+        </div>
+
+        <!-- Mobile: floating toggle edit/preview -->
+        <button x-show="isMobile && currentNote" @click="viewMode = viewMode === 'preview' ? 'edit' : 'preview'; if(viewMode==='preview') renderMarkdown()"
+            id="mobile-toggle-view"
+            class="fixed z-30 w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition"
+            :class="viewMode === 'edit' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'"
+            style="top: 12px; right: 12px;">
+            <!-- eye icon (preview) when in edit mode -->
+            <svg x-show="viewMode === 'edit'" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            <!-- pencil icon (edit) when in preview mode -->
+            <svg x-show="viewMode === 'preview'" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        </button>
+
+        <!-- Empty state -->
+        <div x-show="!currentNote" class="flex-1 flex items-center justify-center">
+            <div class="text-center text-gray-600">
+                <svg class="w-20 h-20 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <p class="text-xl" x-text="t('editor.select_note')"></p>
+                <p class="text-sm mt-2" x-text="t('editor.shortcut_new') + '   ' + t('editor.shortcut_search')"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Knowledge Graph Overlay -->
+    <div x-show="showGraph" class="fixed inset-0 bg-black/80 z-40 flex items-center justify-center" @click.self="showGraph = false">
+        <div class="bg-gray-900 border border-gray-700 rounded-xl w-[90vw] h-[80vh] flex flex-col">
+            <div class="flex items-center justify-between p-4 border-b border-gray-700">
+                <span class="text-base font-medium text-gray-300" x-text="t('graph.title')"></span>
+                <button @click="showGraph = false" class="text-gray-500 hover:text-gray-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div x-ref="graphContainer" class="flex-1"></div>
+        </div>
+    </div>
+
+    <!-- New Note Dialog -->
+    <div x-show="showNewNote" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center" @click.self="showNewNote = false">
+        <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 w-[calc(100%-2rem)] max-w-[420px] shadow-xl">
+            <h3 class="text-lg font-medium mb-4" x-text="t('notes.new_note')"></h3>
+            <div x-show="targetFolder" class="text-sm text-gray-500 mb-2">
+                <span x-text="t('notes.folder_label')"></span>: <span class="text-gray-400" x-text="targetFolder || '/'"></span>
+            </div>
+            <input x-model="newNoteName" x-ref="newNoteInput" @keydown.enter="createNewNote()" type="text"
+                :placeholder="t('notes.note_name_placeholder')"
+                class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 text-white placeholder-gray-500 mb-4">
+            <div class="flex gap-2 justify-end">
+                <button @click="showNewNote = false" class="px-4 py-2 text-sm text-gray-400 hover:text-gray-200" x-text="t('common.cancel')"></button>
+                <button @click="createNewNote()" class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 rounded-lg text-white" x-text="t('common.create')"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Folder Dialog -->
+    <div x-show="showNewFolder" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center" @click.self="showNewFolder = false">
+        <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 w-[calc(100%-2rem)] max-w-[420px] shadow-xl">
+            <h3 class="text-lg font-medium mb-4" x-text="t('folders.new_folder')"></h3>
+            <div x-show="targetFolder" class="text-sm text-gray-500 mb-2">
+                <span x-text="t('folders.inside_label')"></span>: <span class="text-gray-400" x-text="targetFolder || '/'"></span>
+            </div>
+            <input x-model="newFolderName" x-ref="newFolderInput" @keydown.enter="createNewFolder()" type="text"
+                :placeholder="t('folders.folder_name_placeholder')"
+                class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 text-white placeholder-gray-500 mb-4">
+            <div class="flex gap-2 justify-end">
+                <button @click="showNewFolder = false" class="px-4 py-2 text-sm text-gray-400 hover:text-gray-200" x-text="t('common.cancel')"></button>
+                <button @click="createNewFolder()" class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 rounded-lg text-white" x-text="t('common.create')"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rename Note Dialog -->
+    <div x-show="showRename" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center" @click.self="showRename = false">
+        <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 w-[calc(100%-2rem)] max-w-[420px] shadow-xl">
+            <h3 class="text-lg font-medium mb-4" x-text="t('notes.rename')"></h3>
+            <input x-model="renameValue" x-ref="renameInput" @keydown.enter="renameNote()" type="text"
+                :placeholder="t('notes.rename_placeholder')"
+                class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 text-white placeholder-gray-500 mb-4">
+            <div class="flex gap-2 justify-end">
+                <button @click="showRename = false" class="px-4 py-2 text-sm text-gray-400 hover:text-gray-200" x-text="t('common.cancel')"></button>
+                <button @click="renameNote()" class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 rounded-lg text-white" x-text="t('common.rename')"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Dialog -->
+    <div x-show="showShare" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center" @click.self="showShare = false">
+        <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 w-[calc(100%-2rem)] max-w-[460px] shadow-xl">
+            <h3 class="text-lg font-medium mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+                <span x-text="t('share.title')"></span>
+            </h3>
+
+            <!-- Loading -->
+            <div x-show="shareLoading" class="text-sm text-gray-500 py-4 text-center" x-text="t('common.loading')"></div>
+
+            <!-- Not shared yet -->
+            <div x-show="!shareLoading && shareInfo && !shareInfo.shared">
+                <p class="text-sm text-gray-400 mb-4" x-text="t('share.not_shared')"></p>
+                <div class="flex gap-2 justify-end">
+                    <button @click="showShare = false" class="px-4 py-2 text-sm text-gray-400 hover:text-gray-200" x-text="t('common.cancel')"></button>
+                    <button @click="createShareLink()" class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 rounded-lg text-white" x-text="t('share.create_link')"></button>
+                </div>
+            </div>
+
+            <!-- Already shared -->
+            <div x-show="!shareLoading && shareInfo && shareInfo.shared">
+                <p class="text-sm text-gray-400 mb-3" x-text="t('share.shared_label')"></p>
+                <div class="flex items-center gap-2 mb-4">
+                    <input type="text" readonly :value="shareInfo?.url || ''" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-300 select-all focus:outline-none" @click="$event.target.select()">
+                    <button @click="copyShareLink()" class="px-3 py-2 text-sm rounded-lg transition shrink-0" :class="shareCopied ? 'bg-green-600 text-white' : 'bg-gray-700 hover:bg-gray-600 text-gray-300'">
+                        <span x-show="!shareCopied" x-text="t('common.copy')"></span>
+                        <span x-show="shareCopied" x-text="t('common.copied')"></span>
+                    </button>
+                </div>
+                <div class="flex gap-2 justify-between">
+                    <button @click="revokeShareLink()" class="px-4 py-2 text-sm text-red-400 hover:text-red-300" x-text="t('share.revoke')"></button>
+                    <button @click="showShare = false" class="px-4 py-2 text-sm text-gray-400 hover:text-gray-200" x-text="t('common.close')"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Dialog -->
+    <div x-show="showSettings" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center" @click.self="showSettings = false">
+        <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 w-[calc(100%-2rem)] max-w-[460px] shadow-xl">
+            <h3 class="text-lg font-medium mb-5 flex items-center gap-2">
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <span x-text="t('settings.title')"></span>
+            </h3>
+
+            <!-- Account -->
+            <div class="mb-5">
+                <label class="block text-sm text-gray-500 mb-1" x-text="t('settings.account')"></label>
+                <div class="text-sm text-gray-300" x-text="user?.username"></div>
+            </div>
+
+            <!-- Theme -->
+            <div class="mb-4">
+                <label class="block text-sm text-gray-500 mb-1.5" x-text="t('settings.theme')"></label>
+                <select @change="setTheme($event.target.value)" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
+                    <template x-for="th in availableThemes" :key="th.id">
+                        <option :value="th.id" :selected="th.id === currentTheme" x-text="th.name"></option>
+                    </template>
+                </select>
+            </div>
+
+            <!-- Language -->
+            <div class="mb-6">
+                <label class="block text-sm text-gray-500 mb-1.5" x-text="t('settings.language')"></label>
+                <select @change="loadLocale($event.target.value)" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
+                    <template x-for="loc in availableLocales" :key="loc.code">
+                        <option :value="loc.code" :selected="loc.code === currentLocale" x-text="loc.flag + ' ' + loc.name"></option>
+                    </template>
+                </select>
+            </div>
+
+            <div class="flex items-center justify-between pt-2 border-t border-gray-700">
+                <button @click="logout()" class="px-4 py-2 text-sm text-red-400 hover:text-red-300 transition" x-text="t('settings.logout')"></button>
+                <button @click="showSettings = false" class="px-4 py-2 text-sm text-gray-400 hover:text-gray-200" x-text="t('common.close')"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Switcher -->
+    <div x-show="showQuickSwitch" class="fixed inset-0 bg-black/60 z-50 flex items-start justify-center pt-[20vh]" @click.self="showQuickSwitch = false">
+        <div class="bg-gray-800 border border-gray-700 rounded-xl w-[calc(100%-2rem)] max-w-[540px] shadow-xl overflow-hidden">
+            <input x-model="quickSwitchQuery" x-ref="quickSwitchInput" @input="filterQuickSwitch()" @keydown.enter="selectQuickSwitch()" @keydown.escape="showQuickSwitch = false" @keydown.down.prevent="quickSwitchIdx = Math.min(quickSwitchIdx+1, quickSwitchFiltered.length-1)" @keydown.up.prevent="quickSwitchIdx = Math.max(quickSwitchIdx-1, 0)"
+                type="text" :placeholder="t('quick_switcher.placeholder')"
+                class="w-full bg-gray-800 px-5 py-3.5 text-sm focus:outline-none text-white placeholder-gray-500 border-b border-gray-700">
+            <div class="max-h-80 overflow-y-auto">
+                <template x-for="(item, idx) in quickSwitchFiltered" :key="item.path">
+                    <div @click="openNote(item.path); showQuickSwitch = false" class="px-5 py-2.5 cursor-pointer text-sm"
+                        :class="idx === quickSwitchIdx ? 'bg-blue-900/40 text-blue-300' : 'text-gray-400 hover:bg-gray-700'">
+                        <span x-text="item.name" class="font-medium"></span>
+                        <span class="text-xs text-gray-600 ml-2" x-text="item.path"></span>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="/js/app.js?v=7"></script>
+
+</body>
+</html>

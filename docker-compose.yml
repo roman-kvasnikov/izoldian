@@ -1,0 +1,19 @@
+services:
+  izoldian:
+    build: .
+    container_name: izoldian
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - SECRET_KEY=change-me-in-production-use-random-string
+      - DATA_DIR=/app/data
+      - DB_PATH=/app/data/izoldian.db
+      # OIDC (Authelia) — uncomment and configure
+      # - OIDC_ENABLED=true
+      # - OIDC_ISSUER=https://auth.example.com
+      # - OIDC_CLIENT_ID=izoldian
+      # - OIDC_CLIENT_SECRET=your-client-secret
+      # - OIDC_REDIRECT_URI=http://localhost:8000/api/auth/oidc/callback
+    restart: unless-stopped

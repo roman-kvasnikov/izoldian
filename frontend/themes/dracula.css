@@ -1,0 +1,21 @@
+/* Dracula Theme */
+/* @theme-type: dark */
+/* @hljs: dracula */
+:root[data-theme="dracula"] {
+    --bg: #282a36;
+    --sidebar: #21222c;
+    --rail: #191a21;
+    --border: #44475a;
+    --text: #f8f8f2;
+    --text-bright: #ffffff;
+    --text-muted: #6272a4;
+    --text-faint: #4d5b86;
+    --accent: #bd93f9;
+    --editor-bg: #282a36;
+    --preview-bg: #282a36;
+    --surface: #343746;
+    --surface-hover: #44475a;
+    --input-bg: #44475a;
+    --overlay: rgba(0, 0, 0, 0.6);
+    --active-item: rgba(189, 147, 249, 0.15);
+}

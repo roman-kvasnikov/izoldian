@@ -1,0 +1,21 @@
+/* Nord Theme */
+/* @theme-type: dark */
+/* @hljs: nord */
+:root[data-theme="nord"] {
+    --bg: #2e3440;
+    --sidebar: #272c36;
+    --rail: #21262e;
+    --border: #3b4252;
+    --text: #eceff4;
+    --text-bright: #ffffff;
+    --text-muted: #81a1c1;
+    --text-faint: #5e81ac;
+    --accent: #88c0d0;
+    --editor-bg: #2e3440;
+    --preview-bg: #2e3440;
+    --surface: #3b4252;
+    --surface-hover: #434c5e;
+    --input-bg: #434c5e;
+    --overlay: rgba(0, 0, 0, 0.6);
+    --active-item: rgba(136, 192, 208, 0.15);
+}

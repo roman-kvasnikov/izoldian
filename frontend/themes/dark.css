@@ -1,0 +1,21 @@
+/* Dark Theme */
+/* @theme-type: dark */
+/* @hljs: github-dark */
+:root[data-theme="dark"] {
+    --bg: #111827;
+    --sidebar: #1a1d23;
+    --rail: #030712;
+    --border: #1f2937;
+    --text: #e5e7eb;
+    --text-bright: #f9fafb;
+    --text-muted: #9ca3af;
+    --text-faint: #6b7280;
+    --accent: #3b82f6;
+    --editor-bg: #111827;
+    --preview-bg: #111827;
+    --surface: #1f2937;
+    --surface-hover: #374151;
+    --input-bg: #374151;
+    --overlay: rgba(0, 0, 0, 0.6);
+    --active-item: rgba(59, 130, 246, 0.15);
+}
