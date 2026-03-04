@@ -155,13 +155,28 @@ async def exchange_oidc_code(code: str) -> dict:
         resp.raise_for_status()
         tokens = resp.json()
 
-    # Decode ID token (without verification for now — Authelia is trusted)
+    # Decode ID token
     id_token = tokens["id_token"]
     claims = jwt.decode(id_token, options={"verify_signature": False})
 
+    username = claims.get("preferred_username") or claims.get("name")
+
+    # If username not in id_token, fetch from userinfo endpoint
+    if not username:
+        userinfo_endpoint = oidc_config.get("userinfo_endpoint")
+        if userinfo_endpoint:
+            async with httpx.AsyncClient() as client2:
+                ui_resp = await client2.get(
+                    userinfo_endpoint,
+                    headers={"Authorization": f"Bearer {tokens['access_token']}"},
+                )
+                if ui_resp.status_code == 200:
+                    userinfo = ui_resp.json()
+                    username = userinfo.get("preferred_username") or userinfo.get("name")
+
     return {
         "sub": claims["sub"],
-        "username": claims.get("preferred_username", claims.get("name", claims["sub"])),
+        "username": username or claims["sub"],
     }
 
 
@@ -171,7 +186,11 @@ async def get_or_create_oidc_user(oidc_sub: str, username: str) -> dict:
         cursor = await db.execute("SELECT id, username FROM users WHERE oidc_sub = ?", (oidc_sub,))
         row = await cursor.fetchone()
         if row:
-            return {"id": row["id"], "username": row["username"]}
+            # Update username if changed
+            if row["username"] != username:
+                await db.execute("UPDATE users SET username = ? WHERE id = ?", (username, row["id"]))
+                await db.commit()
+            return {"id": row["id"], "username": username}
     finally:
         await db.close()
 
