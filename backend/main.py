@@ -33,6 +33,7 @@ app.add_middleware(
 AUTH_EXEMPT = {
     "/api/auth/register",
     "/api/auth/login",
+    "/api/auth/auth-config",
     "/api/auth/oidc/enabled",
     "/api/auth/oidc/login",
     "/api/auth/oidc/callback",
