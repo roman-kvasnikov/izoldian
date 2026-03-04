@@ -1,187 +1,278 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Izoldian — Markdown Notes</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
-    <style>
-        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-        .fade-in { animation: fadeIn 0.3s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
-</head>
-<body class="bg-gray-900 text-gray-100 min-h-screen flex items-center justify-center">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Izoldian — Your knowledge under your control</title>
+		<script src="https://cdn.tailwindcss.com"></script>
+		<script
+			defer
+			src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"
+		></script>
+		<style>
+			body {
+				font-family:
+					'Inter',
+					system-ui,
+					-apple-system,
+					sans-serif;
+			}
+			.fade-in {
+				animation: fadeIn 0.3s ease-in;
+			}
+			@keyframes fadeIn {
+				from {
+					opacity: 0;
+					transform: translateY(-10px);
+				}
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+		</style>
+	</head>
+	<body
+		class="bg-gray-900 text-gray-100 min-h-screen flex items-center justify-center"
+	>
+		<div x-data="authApp()" class="w-full max-w-md mx-auto p-6 fade-in">
+			<!-- Logo -->
+			<div class="text-center mb-8">
+				<h1 class="text-3xl font-bold text-blue-400">Izoldian</h1>
+				<p class="text-gray-400 mt-2">Your knowledge under your control</p>
+			</div>
 
-<div x-data="authApp()" class="w-full max-w-md mx-auto p-6 fade-in">
-    <!-- Logo -->
-    <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-blue-400">Izoldian</h1>
-        <p class="text-gray-400 mt-2">Markdown Notes</p>
-    </div>
+			<!-- Error message -->
+			<div
+				x-show="error"
+				x-text="error"
+				class="bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded-lg mb-4 text-sm"
+			></div>
 
-    <!-- Error message -->
-    <div x-show="error" x-text="error" class="bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded-lg mb-4 text-sm"></div>
+			<!-- Login Form -->
+			<div
+				x-show="mode === 'login'"
+				class="bg-gray-800 rounded-xl p-6 shadow-xl border border-gray-700"
+			>
+				<h2 class="text-xl font-semibold mb-4">Вход</h2>
+				<form @submit.prevent="login()">
+					<div class="mb-4">
+						<label class="block text-sm text-gray-400 mb-1">Логин</label>
+						<input
+							x-model="username"
+							type="text"
+							required
+							autocomplete="username"
+							class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 text-white placeholder-gray-500"
+							placeholder="username"
+						/>
+					</div>
+					<div class="mb-6">
+						<label class="block text-sm text-gray-400 mb-1">Пароль</label>
+						<input
+							x-model="password"
+							type="password"
+							required
+							autocomplete="current-password"
+							class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 text-white placeholder-gray-500"
+							placeholder="••••••"
+						/>
+					</div>
+					<button
+						type="submit"
+						:disabled="loading"
+						class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition disabled:opacity-50"
+					>
+						<span x-show="!loading">Войти</span>
+						<span x-show="loading">Вход...</span>
+					</button>
+				</form>
 
-    <!-- Login Form -->
-    <div x-show="mode === 'login'" class="bg-gray-800 rounded-xl p-6 shadow-xl border border-gray-700">
-        <h2 class="text-xl font-semibold mb-4">Вход</h2>
-        <form @submit.prevent="login()">
-            <div class="mb-4">
-                <label class="block text-sm text-gray-400 mb-1">Логин</label>
-                <input x-model="username" type="text" required autocomplete="username"
-                    class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 text-white placeholder-gray-500"
-                    placeholder="username">
-            </div>
-            <div class="mb-6">
-                <label class="block text-sm text-gray-400 mb-1">Пароль</label>
-                <input x-model="password" type="password" required autocomplete="current-password"
-                    class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 text-white placeholder-gray-500"
-                    placeholder="••••••">
-            </div>
-            <button type="submit" :disabled="loading"
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition disabled:opacity-50">
-                <span x-show="!loading">Войти</span>
-                <span x-show="loading">Вход...</span>
-            </button>
-        </form>
+				<!-- OIDC Button -->
+				<div x-show="oidcEnabled" class="mt-4">
+					<div class="relative flex items-center justify-center my-3">
+						<div class="border-t border-gray-600 w-full"></div>
+						<span class="bg-gray-800 px-3 text-sm text-gray-500 absolute"
+							>или</span
+						>
+					</div>
+					<button
+						@click="oidcLogin()"
+						:disabled="loading"
+						class="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-2.5 rounded-lg transition border border-gray-600 flex items-center justify-center gap-2"
+					>
+						<svg
+							class="w-5 h-5"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+							/>
+						</svg>
+						Войти через Authelia
+					</button>
+				</div>
 
-        <!-- OIDC Button -->
-        <div x-show="oidcEnabled" class="mt-4">
-            <div class="relative flex items-center justify-center my-3">
-                <div class="border-t border-gray-600 w-full"></div>
-                <span class="bg-gray-800 px-3 text-sm text-gray-500 absolute">или</span>
-            </div>
-            <button @click="oidcLogin()" :disabled="loading"
-                class="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-2.5 rounded-lg transition border border-gray-600 flex items-center justify-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                Войти через Authelia
-            </button>
-        </div>
+				<p class="text-center text-sm text-gray-400 mt-4">
+					Нет аккаунта?
+					<a
+						href="#"
+						@click.prevent="mode = 'register'; error = ''"
+						class="text-blue-400 hover:text-blue-300"
+						>Зарегистрироваться</a
+					>
+				</p>
+			</div>
 
-        <p class="text-center text-sm text-gray-400 mt-4">
-            Нет аккаунта?
-            <a href="#" @click.prevent="mode = 'register'; error = ''" class="text-blue-400 hover:text-blue-300">Зарегистрироваться</a>
-        </p>
-    </div>
+			<!-- Register Form -->
+			<div
+				x-show="mode === 'register'"
+				class="bg-gray-800 rounded-xl p-6 shadow-xl border border-gray-700"
+			>
+				<h2 class="text-xl font-semibold mb-4">Регистрация</h2>
+				<form @submit.prevent="register()">
+					<div class="mb-4">
+						<label class="block text-sm text-gray-400 mb-1">Логин</label>
+						<input
+							x-model="username"
+							type="text"
+							required
+							autocomplete="username"
+							class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 text-white placeholder-gray-500"
+							placeholder="username (a-z, 0-9, -, _)"
+						/>
+						<p class="text-xs text-gray-500 mt-1">
+							Минимум 3 символа: буквы, цифры, - и _
+						</p>
+					</div>
+					<div class="mb-6">
+						<label class="block text-sm text-gray-400 mb-1">Пароль</label>
+						<input
+							x-model="password"
+							type="password"
+							required
+							autocomplete="new-password"
+							class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 text-white placeholder-gray-500"
+							placeholder="Минимум 6 символов"
+						/>
+					</div>
+					<button
+						type="submit"
+						:disabled="loading"
+						class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 rounded-lg transition disabled:opacity-50"
+					>
+						<span x-show="!loading">Создать аккаунт</span>
+						<span x-show="loading">Создание...</span>
+					</button>
+				</form>
+				<p class="text-center text-sm text-gray-400 mt-4">
+					Уже есть аккаунт?
+					<a
+						href="#"
+						@click.prevent="mode = 'login'; error = ''"
+						class="text-blue-400 hover:text-blue-300"
+						>Войти</a
+					>
+				</p>
+			</div>
+		</div>
 
-    <!-- Register Form -->
-    <div x-show="mode === 'register'" class="bg-gray-800 rounded-xl p-6 shadow-xl border border-gray-700">
-        <h2 class="text-xl font-semibold mb-4">Регистрация</h2>
-        <form @submit.prevent="register()">
-            <div class="mb-4">
-                <label class="block text-sm text-gray-400 mb-1">Логин</label>
-                <input x-model="username" type="text" required autocomplete="username"
-                    class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 text-white placeholder-gray-500"
-                    placeholder="username (a-z, 0-9, -, _)">
-                <p class="text-xs text-gray-500 mt-1">Минимум 3 символа: буквы, цифры, - и _</p>
-            </div>
-            <div class="mb-6">
-                <label class="block text-sm text-gray-400 mb-1">Пароль</label>
-                <input x-model="password" type="password" required autocomplete="new-password"
-                    class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2.5 focus:outline-none focus:border-blue-500 text-white placeholder-gray-500"
-                    placeholder="Минимум 6 символов">
-            </div>
-            <button type="submit" :disabled="loading"
-                class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 rounded-lg transition disabled:opacity-50">
-                <span x-show="!loading">Создать аккаунт</span>
-                <span x-show="loading">Создание...</span>
-            </button>
-        </form>
-        <p class="text-center text-sm text-gray-400 mt-4">
-            Уже есть аккаунт?
-            <a href="#" @click.prevent="mode = 'login'; error = ''" class="text-blue-400 hover:text-blue-300">Войти</a>
-        </p>
-    </div>
-</div>
+		<script>
+			function authApp() {
+				return {
+					mode: 'login',
+					username: '',
+					password: '',
+					error: '',
+					loading: false,
+					oidcEnabled: false,
 
-<script>
-function authApp() {
-    return {
-        mode: 'login',
-        username: '',
-        password: '',
-        error: '',
-        loading: false,
-        oidcEnabled: false,
+					async init() {
+						// Check if already logged in
+						try {
+							const resp = await fetch('/api/auth/me')
+							if (resp.ok) {
+								window.location.href = '/app'
+								return
+							}
+						} catch (e) {}
 
-        async init() {
-            // Check if already logged in
-            try {
-                const resp = await fetch('/api/auth/me');
-                if (resp.ok) {
-                    window.location.href = '/app';
-                    return;
-                }
-            } catch (e) {}
+						// Check OIDC availability
+						try {
+							const resp = await fetch('/api/auth/oidc/enabled')
+							const data = await resp.json()
+							this.oidcEnabled = data.enabled
+						} catch (e) {}
+					},
 
-            // Check OIDC availability
-            try {
-                const resp = await fetch('/api/auth/oidc/enabled');
-                const data = await resp.json();
-                this.oidcEnabled = data.enabled;
-            } catch (e) {}
-        },
+					async login() {
+						this.loading = true
+						this.error = ''
+						try {
+							const resp = await fetch('/api/auth/login', {
+								method: 'POST',
+								headers: { 'Content-Type': 'application/json' },
+								body: JSON.stringify({
+									username: this.username,
+									password: this.password,
+								}),
+							})
+							if (!resp.ok) {
+								const data = await resp.json()
+								this.error = data.detail || 'Ошибка входа'
+								return
+							}
+							window.location.href = '/app'
+						} catch (e) {
+							this.error = 'Ошибка соединения'
+						} finally {
+							this.loading = false
+						}
+					},
 
-        async login() {
-            this.loading = true;
-            this.error = '';
-            try {
-                const resp = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: this.username, password: this.password }),
-                });
-                if (!resp.ok) {
-                    const data = await resp.json();
-                    this.error = data.detail || 'Ошибка входа';
-                    return;
-                }
-                window.location.href = '/app';
-            } catch (e) {
-                this.error = 'Ошибка соединения';
-            } finally {
-                this.loading = false;
-            }
-        },
+					async register() {
+						this.loading = true
+						this.error = ''
+						try {
+							const resp = await fetch('/api/auth/register', {
+								method: 'POST',
+								headers: { 'Content-Type': 'application/json' },
+								body: JSON.stringify({
+									username: this.username,
+									password: this.password,
+								}),
+							})
+							if (!resp.ok) {
+								const data = await resp.json()
+								this.error = data.detail || 'Ошибка регистрации'
+								return
+							}
+							window.location.href = '/app'
+						} catch (e) {
+							this.error = 'Ошибка соединения'
+						} finally {
+							this.loading = false
+						}
+					},
 
-        async register() {
-            this.loading = true;
-            this.error = '';
-            try {
-                const resp = await fetch('/api/auth/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: this.username, password: this.password }),
-                });
-                if (!resp.ok) {
-                    const data = await resp.json();
-                    this.error = data.detail || 'Ошибка регистрации';
-                    return;
-                }
-                window.location.href = '/app';
-            } catch (e) {
-                this.error = 'Ошибка соединения';
-            } finally {
-                this.loading = false;
-            }
-        },
-
-        async oidcLogin() {
-            this.loading = true;
-            try {
-                const resp = await fetch('/api/auth/oidc/login');
-                const data = await resp.json();
-                window.location.href = data.url;
-            } catch (e) {
-                this.error = 'Ошибка OIDC';
-                this.loading = false;
-            }
-        }
-    };
-}
-</script>
-
-</body>
+					async oidcLogin() {
+						this.loading = true
+						try {
+							const resp = await fetch('/api/auth/oidc/login')
+							const data = await resp.json()
+							window.location.href = data.url
+						} catch (e) {
+							this.error = 'Ошибка OIDC'
+							this.loading = false
+						}
+					},
+				}
+			}
+		</script>
+	</body>
 </html>
