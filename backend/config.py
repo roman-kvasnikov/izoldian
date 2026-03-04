@@ -13,6 +13,10 @@ class Settings(BaseSettings):
     # Session
     session_max_age_days: int = 7
 
+    # Auth control
+    user_signup: bool = True
+    disable_internal_auth: bool = False
+
     # OIDC (Authelia)
     oidc_enabled: bool = False
     oidc_issuer: str = ""

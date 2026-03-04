@@ -13,7 +13,10 @@ services:
       # - DATA_DIR=/app/data
       # - DB_PATH=/app/data/izoldian.db
 
-      # OIDC (Authelia)
+      # Authentication
+      # - USER_SIGNUP=true
+      # - DISABLE_INTERNAL_AUTH=false
+
       # - OIDC_ENABLED=true
       # - OIDC_ISSUER=https://auth.example.com
       # - OIDC_CLIENT_ID=izoldian

@@ -51,7 +51,7 @@
 
 			<!-- Login Form -->
 			<div
-				x-show="mode === 'login'"
+				x-show="mode === 'login' && internalAuthEnabled"
 				class="bg-gray-800 rounded-xl p-6 shadow-xl border border-gray-700"
 			>
 				<h2 class="text-xl font-semibold mb-4">Sign In</h2>
@@ -118,7 +118,7 @@
 					</button>
 				</div>
 
-				<p class="text-center text-sm text-gray-400 mt-4">
+				<p x-show="signupEnabled" class="text-center text-sm text-gray-400 mt-4">
 					Don't have an account?
 					<a
 						href="#"
@@ -129,9 +129,38 @@
 				</p>
 			</div>
 
+			<!-- OIDC-only login (when internal auth is disabled) -->
+			<div
+				x-show="!internalAuthEnabled && oidcEnabled"
+				class="bg-gray-800 rounded-xl p-6 shadow-xl border border-gray-700"
+			>
+				<h2 class="text-xl font-semibold mb-4 text-center">Sign In</h2>
+				<button
+					@click="oidcLogin()"
+					:disabled="loading"
+					class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition flex items-center justify-center gap-2"
+				>
+					<svg
+						class="w-5 h-5"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+						/>
+					</svg>
+					<span x-show="!loading">Sign in with Authelia</span>
+					<span x-show="loading">Redirecting...</span>
+				</button>
+			</div>
+
 			<!-- Register Form -->
 			<div
-				x-show="mode === 'register'"
+				x-show="mode === 'register' && signupEnabled && internalAuthEnabled"
 				class="bg-gray-800 rounded-xl p-6 shadow-xl border border-gray-700"
 			>
 				<h2 class="text-xl font-semibold mb-4">Create Account</h2>
@@ -191,6 +220,8 @@
 					error: '',
 					loading: false,
 					oidcEnabled: false,
+					signupEnabled: true,
+					internalAuthEnabled: true,
 
 					async init() {
 						// Check if already logged in
@@ -202,11 +233,13 @@
 							}
 						} catch (e) {}
 
-						// Check OIDC availability
+						// Load auth config
 						try {
-							const resp = await fetch('/api/auth/oidc/enabled')
+							const resp = await fetch('/api/auth/auth-config')
 							const data = await resp.json()
-							this.oidcEnabled = data.enabled
+							this.oidcEnabled = data.oidc_enabled
+							this.signupEnabled = data.signup_enabled
+							this.internalAuthEnabled = data.internal_auth_enabled
 						} catch (e) {}
 					},
 

@@ -37,6 +37,11 @@ def set_session_cookie(response: Response, token: str):
 
 @router.post("/register", response_model=UserResponse)
 async def register(req: RegisterRequest, response: Response):
+    if not settings.user_signup:
+        raise HTTPException(403, "Registration is disabled")
+    if settings.disable_internal_auth:
+        raise HTTPException(403, "Internal authentication is disabled")
+
     try:
         user = await create_user(req.username, req.password)
     except Exception:
@@ -49,6 +54,9 @@ async def register(req: RegisterRequest, response: Response):
 
 @router.post("/login", response_model=UserResponse)
 async def login(req: LoginRequest, response: Response):
+    if settings.disable_internal_auth:
+        raise HTTPException(403, "Internal authentication is disabled")
+
     user = await authenticate_user(req.username, req.password)
     if not user:
         raise HTTPException(401, "Invalid username or password")
@@ -76,6 +84,15 @@ async def me(request: Request):
     if not user:
         raise HTTPException(401, "Session expired")
     return user
+
+
+@router.get("/auth-config")
+async def auth_config():
+    return {
+        "oidc_enabled": settings.oidc_enabled,
+        "signup_enabled": settings.user_signup,
+        "internal_auth_enabled": not settings.disable_internal_auth,
+    }
 
 
 @router.get("/oidc/enabled")
