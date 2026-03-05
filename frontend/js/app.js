@@ -32,6 +32,9 @@ function noteApp() {
         showQuickSwitch: false,
         showRename: false,
         renameValue: '',
+        showRenameFolder: false,
+        renameFolderValue: '',
+        renameFolderPath: '',
         newNoteName: '',
         newFolderName: '',
         targetFolder: '',
@@ -462,19 +465,15 @@ function noteApp() {
             };
             window._treeNewNote = (folderPath) => app.showNewNoteDialog(folderPath);
             window._treeNewFolder = (folderPath) => app.showNewFolderDialog(folderPath);
-            window._treeRenameFolder = async (folderPath) => {
+            window._treeRenameFolder = (folderPath) => {
                 const parts = folderPath.split('/');
-                const oldName = parts[parts.length - 1];
-                const newName = prompt('Rename folder:', oldName);
-                if (!newName || newName === oldName) return;
-                const parentPath = parts.slice(0, -1).join('/');
-                const newPath = parentPath ? parentPath + '/' + newName : newName;
-                const resp = await fetch('/api/folders/move', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ source: folderPath, destination: newPath }),
+                app.renameFolderPath = folderPath;
+                app.renameFolderValue = parts[parts.length - 1];
+                app.showRenameFolder = true;
+                app.$nextTick(() => {
+                    const input = app.$refs.renameFolderInput;
+                    if (input) { input.focus(); input.select(); }
                 });
-                if (resp.ok) await app.loadFileTree();
             };
             window._treeDeleteFolder = async (folderPath) => {
                 if (!confirm(app.t('folders.delete_confirm').replace('{name}', folderPath))) return;
@@ -575,6 +574,32 @@ function noteApp() {
                 this.currentNote = null;
                 await this.loadFileTree();
                 await this.openNote(newPath);
+            }
+        },
+
+        async renameFolder() {
+            const newName = this.renameFolderValue.trim();
+            if (!newName || !this.renameFolderPath) return;
+
+            const parts = this.renameFolderPath.split('/');
+            const oldName = parts[parts.length - 1];
+            if (newName === oldName) {
+                this.showRenameFolder = false;
+                return;
+            }
+
+            const parentPath = parts.slice(0, -1).join('/');
+            const newPath = parentPath ? parentPath + '/' + newName : newName;
+
+            const resp = await fetch('/api/folders/move', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ source: this.renameFolderPath, destination: newPath }),
+            });
+
+            if (resp.ok) {
+                this.showRenameFolder = false;
+                await this.loadFileTree();
             }
         },
 

@@ -1070,6 +1070,38 @@
 				</div>
 			</div>
 
+			<!-- Rename Folder Dialog -->
+			<div
+				x-show="showRenameFolder"
+				class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center"
+				@click.self="showRenameFolder = false"
+			>
+				<div
+					class="bg-gray-800 border border-gray-700 rounded-xl p-6 w-[calc(100%-2rem)] max-w-[420px] shadow-xl"
+				>
+					<h3 class="text-lg font-medium mb-4" x-text="t('folders.rename')"></h3>
+					<input
+						x-model="renameFolderValue"
+						x-ref="renameFolderInput"
+						@keydown.enter="renameFolder()"
+						type="text"
+						class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 text-white placeholder-gray-500 mb-4"
+					/>
+					<div class="flex gap-2 justify-end">
+						<button
+							@click="showRenameFolder = false"
+							class="px-4 py-2 text-sm text-gray-400 hover:text-gray-200"
+							x-text="t('common.cancel')"
+						></button>
+						<button
+							@click="renameFolder()"
+							class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 rounded-lg text-white"
+							x-text="t('common.rename')"
+						></button>
+					</div>
+				</div>
+			</div>
+
 			<!-- Share Dialog -->
 			<div
 				x-show="showShare"

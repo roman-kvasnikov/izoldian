@@ -32,7 +32,8 @@
     "new_folder": "New folder",
     "folder_name_placeholder": "Folder name",
     "inside_label": "Inside",
-    "delete_confirm": "Delete folder \"{name}\" and all its contents?"
+    "delete_confirm": "Delete folder \"{name}\" and all its contents?",
+    "rename": "Rename folder"
   },
   "common": {
     "cancel": "Cancel",
