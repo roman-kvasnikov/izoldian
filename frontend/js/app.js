@@ -430,6 +430,7 @@ function noteApp() {
                     html += '<span class="hidden group-hover:flex items-center gap-1 shrink-0" onclick="event.stopPropagation()">';
                     html += '<button class="text-gray-600 hover:text-gray-300 p-0.5" onclick="window._treeNewNote(\x27' + epath + '\x27)" title="Новая заметка"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg></button>';
                     html += '<button class="text-gray-600 hover:text-gray-300 p-0.5" onclick="window._treeNewFolder(\x27' + epath + '\x27)" title="Новая папка"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></button>';
+                    html += '<button class="text-gray-600 hover:text-gray-300 p-0.5" onclick="window._treeRenameFolder(\x27' + epath + '\x27)" title="Переименовать"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>';
                     html += '<button class="text-gray-600 hover:text-red-400 p-0.5" onclick="window._treeDeleteFolder(\x27' + epath + '\x27)" title="Удалить папку"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>';
                     html += '</span>';
                     html += '</div>';
@@ -461,6 +462,20 @@ function noteApp() {
             };
             window._treeNewNote = (folderPath) => app.showNewNoteDialog(folderPath);
             window._treeNewFolder = (folderPath) => app.showNewFolderDialog(folderPath);
+            window._treeRenameFolder = async (folderPath) => {
+                const parts = folderPath.split('/');
+                const oldName = parts[parts.length - 1];
+                const newName = prompt('Rename folder:', oldName);
+                if (!newName || newName === oldName) return;
+                const parentPath = parts.slice(0, -1).join('/');
+                const newPath = parentPath ? parentPath + '/' + newName : newName;
+                const resp = await fetch('/api/folders/move', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ source: folderPath, destination: newPath }),
+                });
+                if (resp.ok) await app.loadFileTree();
+            };
             window._treeDeleteFolder = async (folderPath) => {
                 if (!confirm(app.t('folders.delete_confirm').replace('{name}', folderPath))) return;
                 const resp = await fetch('/api/folders/' + encodePath(folderPath), { method: 'DELETE' });
