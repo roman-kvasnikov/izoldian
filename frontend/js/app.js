@@ -1,9 +1,48 @@
 // No hardcoded themes — loaded from /api/themes at runtime
 
-// Configure marked
+// Configure marked with syntax highlighting via custom renderer
 marked.use({
     breaks: true,
     gfm: true,
+    renderer: {
+        code({ text, lang }) {
+            const language = (lang || '').trim();
+            let highlighted;
+            try {
+                if (language && hljs.getLanguage(language)) {
+                    highlighted = hljs.highlight(text, { language }).value;
+                } else {
+                    highlighted = hljs.highlightAuto(text).value;
+                }
+            } catch (e) {
+                highlighted = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            }
+
+            // Build line numbers
+            const rawLines = highlighted.split('\n');
+            if (rawLines.length > 1 && rawLines[rawLines.length - 1] === '') rawLines.pop();
+
+            let openStack = [];
+            const linesHtml = rawLines.map(function(line, i) {
+                const prefix = openStack.join('');
+                const tagRegex = /<\/?span[^>]*>/g;
+                let m;
+                while ((m = tagRegex.exec(line)) !== null) {
+                    if (m[0].startsWith('</')) {
+                        openStack.pop();
+                    } else {
+                        openStack.push(m[0]);
+                    }
+                }
+                const suffix = openStack.map(() => '</span>').join('');
+                const content = prefix + line + suffix;
+                return '<span class="code-line"><span class="line-number">' + (i + 1) + '</span><span class="line-content">' + (content || ' ') + '</span></span>';
+            }).join('');
+
+            const langLabel = language ? '<span class="code-lang-label">' + language + '</span>' : '';
+            return '<div class="code-block-wrapper">' + langLabel + '<pre class="code-block"><code class="hljs language-' + language + '">' + linesHtml + '</code></pre></div>';
+        }
+    }
 });
 
 // Mermaid init
@@ -666,48 +705,6 @@ function noteApp() {
         async postRender() {
             const preview = this.$refs.preview;
             if (!preview) return;
-
-            // Syntax highlighting for code blocks
-            setTimeout(() => {
-                const el = this.$refs.preview;
-                if (!el) return;
-                el.querySelectorAll('pre code:not(.language-mermaid)').forEach(block => {
-                    const pre = block.parentElement;
-                    if (!pre || pre.classList.contains('code-processed')) return;
-                    pre.classList.add('code-processed', 'code-block');
-
-                    // Detect language for label
-                    let lang = '';
-                    for (const cls of block.classList) {
-                        if (cls.startsWith('language-')) {
-                            lang = cls.replace('language-', '');
-                            break;
-                        }
-                    }
-
-                    // Apply syntax highlighting
-                    if (!block.classList.contains('hljs')) {
-                        try {
-                            hljs.highlightElement(block);
-                        } catch (e) {
-                            console.error('hljs error:', e);
-                        }
-                    }
-
-                    // Wrap pre in container for sticky language label
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'code-block-wrapper';
-                    pre.parentNode.insertBefore(wrapper, pre);
-                    wrapper.appendChild(pre);
-
-                    if (lang) {
-                        const label = document.createElement('span');
-                        label.className = 'code-lang-label';
-                        label.textContent = lang;
-                        wrapper.appendChild(label);
-                    }
-                });
-            }, 0);
 
             // Mermaid diagrams
             const mermaidBlocks = preview.querySelectorAll('code.language-mermaid');
