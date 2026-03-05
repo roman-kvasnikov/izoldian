@@ -37,6 +37,7 @@ AUTH_EXEMPT = {
     "/api/auth/oidc/enabled",
     "/api/auth/oidc/login",
     "/api/auth/oidc/callback",
+    "/api/health",
 }
 
 
@@ -75,6 +76,11 @@ app.include_router(locale_router)
 
 # Frontend static files
 frontend_dir = os.path.join(os.path.dirname(__file__), "..", "frontend")
+
+
+@app.get("/api/health")
+async def health():
+    return {"status": "ok"}
 
 
 @app.get("/")
