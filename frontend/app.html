@@ -590,6 +590,7 @@
 							</svg>
 						</button>
 						<button
+							x-show="!isMobile"
 							@click="viewMode = 'split'"
 							:class="viewMode === 'split' ? 'bg-gray-700 text-white' : 'text-gray-500'"
 							class="px-2.5 py-1.5 rounded text-xs transition"
