@@ -63,6 +63,11 @@ marked.use({
 // Mermaid init
 mermaid.initialize({ startOnLoad: false, theme: 'dark' });
 
+// Encode path preserving / separators
+function encodePath(p) {
+    return p.split('/').map(encodeURIComponent).join('/');
+}
+
 function noteApp() {
     return {
         // State
@@ -276,7 +281,7 @@ function noteApp() {
                 await this.saveNote();
             }
 
-            const resp = await fetch(`/api/notes/by-path/${encodeURIComponent(path)}`);
+            const resp = await fetch(`/api/notes/by-path/${encodePath(path)}`);
             if (!resp.ok) return;
 
             this.currentNote = await resp.json();
@@ -294,7 +299,7 @@ function noteApp() {
         async saveNote() {
             if (!this.currentNote) return;
 
-            await fetch(`/api/notes/by-path/${encodeURIComponent(this.currentNote.path)}`, {
+            await fetch(`/api/notes/by-path/${encodePath(this.currentNote.path)}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ content: this.editorContent }),
@@ -439,7 +444,7 @@ function noteApp() {
             if (!this.currentNote) return;
             if (!confirm(this.t('notes.delete_confirm').replace('{name}', this.currentNote.name))) return;
 
-            await fetch(`/api/notes/by-path/${encodeURIComponent(this.currentNote.path)}`, { method: 'DELETE' });
+            await fetch(`/api/notes/by-path/${encodePath(this.currentNote.path)}`, { method: 'DELETE' });
             this.currentNote = null;
             this.editorContent = '';
             this.renderedContent = '';
@@ -512,7 +517,7 @@ function noteApp() {
             window._treeNewFolder = (folderPath) => app.showNewFolderDialog(folderPath);
             window._treeDeleteFolder = async (folderPath) => {
                 if (!confirm(app.t('folders.delete_confirm').replace('{name}', folderPath))) return;
-                const resp = await fetch('/api/folders/' + encodeURIComponent(folderPath), { method: 'DELETE' });
+                const resp = await fetch('/api/folders/' + encodePath(folderPath), { method: 'DELETE' });
                 if (resp.ok) await app.loadFileTree();
             };
         },
@@ -532,7 +537,7 @@ function noteApp() {
             if (!name.endsWith('.md')) name += '.md';
             const path = this.targetFolder ? this.targetFolder + '/' + name : name;
 
-            await fetch(`/api/notes/by-path/${encodeURIComponent(path)}`, {
+            await fetch(`/api/notes/by-path/${encodePath(path)}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ content: `# ${this.newNoteName.trim()}\n\n` }),
@@ -632,7 +637,7 @@ function noteApp() {
             this.shareCopied = false;
             this.shareLoading = true;
             try {
-                const resp = await fetch(`/api/share/info/${encodeURIComponent(this.currentNote.path)}`);
+                const resp = await fetch(`/api/share/info/${encodePath(this.currentNote.path)}`);
                 this.shareInfo = await resp.json();
             } catch (e) {}
             this.shareLoading = false;
@@ -642,7 +647,7 @@ function noteApp() {
             if (!this.currentNote) return;
             this.shareLoading = true;
             try {
-                const resp = await fetch(`/api/share/${encodeURIComponent(this.currentNote.path)}`, { method: 'POST' });
+                const resp = await fetch(`/api/share/${encodePath(this.currentNote.path)}`, { method: 'POST' });
                 const data = await resp.json();
                 this.shareInfo = { shared: true, token: data.token, url: data.url };
                 this._sharedPaths.add(this.currentNote.path);
@@ -665,7 +670,7 @@ function noteApp() {
             if (!this.currentNote || !this.shareInfo) return;
             if (!confirm(this.t('share.revoke_confirm'))) return;
             try {
-                await fetch(`/api/share/${encodeURIComponent(this.currentNote.path)}`, { method: 'DELETE' });
+                await fetch(`/api/share/${encodePath(this.currentNote.path)}`, { method: 'DELETE' });
                 this._sharedPaths.delete(this.currentNote.path);
                 this.shareInfo = { shared: false };
                 this.fileTree = [...this.fileTree];
@@ -688,7 +693,7 @@ function noteApp() {
             content = content.replace(/!\[\[([^\]]+)\]\]/g, (match, target) => {
                 // Media wikilink
                 const ext = target.split('.').pop().toLowerCase();
-                const src = `/api/media/${encodeURIComponent(target)}`;
+                const src = `/api/media/${encodePath(target)}`;
                 if (['png','jpg','jpeg','gif','webp','svg'].includes(ext)) {
                     return `<img src="${src}" alt="${target}" class="max-w-full rounded">`;
                 }
@@ -709,11 +714,22 @@ function noteApp() {
                 html = '<pre>' + content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>';
             }
 
+            // Debug: check hljs spans before sanitize
+            const hasHljsBefore = html.includes('hljs-');
+
             // Sanitize
             html = DOMPurify.sanitize(html, {
                 ADD_TAGS: ['iframe'],
                 ADD_ATTR: ['data-target', 'class', 'id'],
             });
+
+            const hasHljsAfter = html.includes('hljs-');
+            if (hasHljsBefore && !hasHljsAfter) {
+                console.error('DOMPurify stripped hljs spans!');
+            }
+            if (hasHljsBefore) {
+                console.log('hljs spans present before sanitize:', hasHljsBefore, 'after:', hasHljsAfter);
+            }
 
             this.renderedContent = html;
 
