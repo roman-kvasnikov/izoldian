@@ -474,8 +474,9 @@ svg.w-5 { width: 1.6rem !important; height: 1.6rem !important; }
     }
 
     /* Ensure scrollable areas have bottom space above nav */
-    .overflow-y-auto {
-        padding-bottom: 64px !important;
+    .overflow-y-auto,
+    textarea {
+        padding-bottom: 80px !important;
     }
 
     /* Sidebar → overlay on mobile */
