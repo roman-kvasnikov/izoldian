@@ -473,9 +473,8 @@ svg.w-5 { width: 1.6rem !important; height: 1.6rem !important; }
         padding-bottom: 64px !important;
     }
 
-    /* Ensure preview/editor content has bottom space above nav */
-    .markdown-body,
-    #editor-area textarea {
+    /* Ensure scrollable areas have bottom space above nav */
+    .overflow-y-auto {
         padding-bottom: 64px !important;
     }
 
