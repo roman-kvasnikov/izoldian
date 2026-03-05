@@ -1,0 +1,28 @@
+/* GitHub Dark Default Inspired Theme */
+/* @theme-type: dark */
+/* @hljs: github-dark */
+:root[data-theme='github-dark'] {
+	--bg: #0d1117;
+	--sidebar: #010409;
+	--rail: #010409;
+	--border: #30363d;
+
+	--text: #c9d1d9;
+	--text-bright: #f0f6fc;
+	--text-muted: #8b949e;
+	--text-faint: #6e7681;
+
+	--accent: #2f81f7;
+
+	--editor-bg: #0d1117;
+	--preview-bg: #0d1117;
+
+	--surface: #161b22;
+	--surface-hover: #21262d;
+
+	--input-bg: #0d1117;
+
+	--overlay: rgba(0, 0, 0, 0.65);
+
+	--active-item: rgba(47, 129, 247, 0.18);
+}
