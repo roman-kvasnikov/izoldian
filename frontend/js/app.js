@@ -1,62 +1,9 @@
 // No hardcoded themes — loaded from /api/themes at runtime
 
-// Configure marked with syntax highlighting via custom renderer
+// Configure marked
 marked.use({
     breaks: true,
     gfm: true,
-    renderer: {
-        code(token) {
-            // Handle both token object and positional args
-            let codeText, language;
-            if (typeof token === 'object' && token !== null) {
-                codeText = token.text;
-                language = (token.lang || '').trim();
-            } else {
-                codeText = String(token);
-                language = '';
-            }
-
-            // Let mermaid blocks pass through as-is for post-processing
-            if (language === 'mermaid') {
-                return '<pre><code class="language-mermaid">' + codeText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</code></pre>';
-            }
-
-            // Syntax highlighting
-            let highlighted;
-            try {
-                if (language && hljs.getLanguage(language)) {
-                    highlighted = hljs.highlight(codeText, { language }).value;
-                } else {
-                    highlighted = hljs.highlightAuto(codeText).value;
-                }
-            } catch (e) {
-                highlighted = codeText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            }
-
-            // Build line numbers
-            const rawLines = highlighted.split('\n');
-            if (rawLines.length > 1 && rawLines[rawLines.length - 1] === '') rawLines.pop();
-
-            let openStack = [];
-            const linesHtml = rawLines.map(function(line, i) {
-                const prefix = openStack.join('');
-                const tagRegex = /<\/?span[^>]*>/g;
-                let m;
-                while ((m = tagRegex.exec(line)) !== null) {
-                    if (m[0].startsWith('</')) {
-                        openStack.pop();
-                    } else {
-                        openStack.push(m[0]);
-                    }
-                }
-                const suffix = openStack.map(() => '</span>').join('');
-                const content = prefix + line + suffix;
-                return '<span class="code-line"><span class="line-number">' + (i + 1) + '</span><span class="line-content">' + (content || ' ') + '</span></span>';
-            }).join('');
-
-            return '<pre class="code-block"><code class="hljs language-' + language + '">' + linesHtml + '</code></pre>';
-        }
-    }
 });
 
 // Mermaid init
@@ -731,26 +678,59 @@ function noteApp() {
             const preview = this.$refs.preview;
             if (!preview) return;
 
-            // Wrap code blocks in container + add language label
-            preview.querySelectorAll('pre.code-block').forEach(pre => {
-                if (pre.parentElement && pre.parentElement.classList.contains('code-block-wrapper')) return;
+            // Syntax highlighting, line numbers, language labels
+            preview.querySelectorAll('pre > code:not(.language-mermaid)').forEach(block => {
+                const pre = block.parentElement;
+                if (!pre || pre.classList.contains('code-processed')) return;
+                pre.classList.add('code-processed', 'code-block');
 
-                // Get language from code element's class (language-xxx)
+                // Detect language
                 let lang = '';
-                const codeEl = pre.querySelector('code');
-                if (codeEl) {
-                    for (const cls of codeEl.classList) {
-                        if (cls.startsWith('language-') && cls !== 'language-') {
-                            lang = cls.replace('language-', '');
-                            break;
-                        }
+                for (const cls of block.classList) {
+                    if (cls.startsWith('language-') && cls !== 'language-') {
+                        lang = cls.replace('language-', '');
+                        break;
                     }
                 }
 
+                // Apply syntax highlighting
+                const rawText = block.textContent;
+                let highlighted;
+                try {
+                    if (lang && hljs.getLanguage(lang)) {
+                        highlighted = hljs.highlight(rawText, { language: lang }).value;
+                    } else {
+                        highlighted = hljs.highlightAuto(rawText).value;
+                    }
+                } catch (e) {
+                    highlighted = block.innerHTML;
+                }
+                block.classList.add('hljs');
+
+                // Build line numbers from highlighted HTML
+                const rawLines = highlighted.split('\n');
+                if (rawLines.length > 1 && rawLines[rawLines.length - 1] === '') rawLines.pop();
+
+                let openStack = [];
+                block.innerHTML = rawLines.map(function(line, i) {
+                    const prefix = openStack.join('');
+                    const tagRegex = /<\/?span[^>]*>/g;
+                    let m;
+                    while ((m = tagRegex.exec(line)) !== null) {
+                        if (m[0].startsWith('</')) { openStack.pop(); }
+                        else { openStack.push(m[0]); }
+                    }
+                    const suffix = openStack.map(() => '</span>').join('');
+                    const content = prefix + line + suffix;
+                    return '<span class="code-line"><span class="line-number">' + (i + 1) + '</span><span class="line-content">' + (content || ' ') + '</span></span>';
+                }).join('');
+
+                // Wrap in container + language label
                 const wrapper = document.createElement('div');
                 wrapper.className = 'code-block-wrapper';
                 pre.parentNode.insertBefore(wrapper, pre);
                 wrapper.appendChild(pre);
+
                 if (lang) {
                     const label = document.createElement('span');
                     label.className = 'code-lang-label';
