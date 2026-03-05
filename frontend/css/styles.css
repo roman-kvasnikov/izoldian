@@ -480,7 +480,7 @@ svg.w-5 { width: 1.6rem !important; height: 1.6rem !important; }
 
     /* Editor textarea needs margin-bottom since padding doesn't work with flex-1 */
     textarea {
-        margin-bottom: 80px !important;
+        margin-bottom: 120px !important;
     }
 
     /* Sidebar → overlay on mobile */
