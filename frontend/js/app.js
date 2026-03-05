@@ -729,6 +729,9 @@ function noteApp() {
             }
             if (hasHljsBefore) {
                 console.log('hljs spans present before sanitize:', hasHljsBefore, 'after:', hasHljsAfter);
+                // Show a sample of highlighted code HTML
+                const match = html.match(/<code class="hljs[^"]*">([\s\S]{0,500})/);
+                if (match) console.log('Sample hljs HTML:', match[1].substring(0, 300));
             }
 
             this.renderedContent = html;
