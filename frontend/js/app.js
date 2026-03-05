@@ -38,6 +38,10 @@ function noteApp() {
         newNoteName: '',
         newFolderName: '',
         targetFolder: '',
+        showMediaViewer: false,
+        mediaViewerUrl: '',
+        mediaViewerName: '',
+        mediaViewerType: '',
         expandedFolders: {},
         searchQuery: '',
         searchResults: [],
@@ -440,6 +444,20 @@ function noteApp() {
                     html += '<div class="ml-4" style="' + childStyle + '">';
                     html += this._buildTreeHTML(item.children || [], depth + 1);
                     html += '</div></div>';
+                } else if (item.type === 'media') {
+                    var ext = (item.ext || '').toLowerCase();
+                    var isImage = ['.png','.jpg','.jpeg','.gif','.webp','.svg'].indexOf(ext) >= 0;
+                    var isPdf = ext === '.pdf';
+                    var iconColor = isImage ? 'text-green-400' : isPdf ? 'text-red-400' : 'text-purple-400';
+                    var icon = isImage
+                        ? '<svg class="w-5 h-5 shrink-0 ' + iconColor + '" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>'
+                        : isPdf
+                        ? '<svg class="w-5 h-5 shrink-0 ' + iconColor + '" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>'
+                        : '<svg class="w-5 h-5 shrink-0 ' + iconColor + '" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>';
+                    html += '<div onclick="window._treeOpenMedia(\x27' + epath + '\x27)" class="flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer text-sm transition text-gray-400 hover:bg-gray-800 hover:text-gray-200">';
+                    html += icon;
+                    html += '<span class="truncate flex-1">' + ename + '</span>';
+                    html += '</div>';
                 } else {
                     var active = this.currentNote && this.currentNote.path === item.path;
                     var cls = active ? 'bg-blue-900/30 text-blue-300' : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200';
@@ -479,6 +497,25 @@ function noteApp() {
                 if (!confirm(app.t('folders.delete_confirm').replace('{name}', folderPath))) return;
                 const resp = await fetch('/api/folders/' + encodePath(folderPath), { method: 'DELETE' });
                 if (resp.ok) await app.loadFileTree();
+            };
+            window._treeOpenMedia = (mediaPath) => {
+                const ext = mediaPath.split('.').pop().toLowerCase();
+                const imageExts = ['png','jpg','jpeg','gif','webp','svg'];
+                const url = '/api/media/' + encodePath(mediaPath);
+                app.mediaViewerUrl = url;
+                app.mediaViewerName = mediaPath.split('/').pop();
+                if (imageExts.includes(ext)) {
+                    app.mediaViewerType = 'image';
+                } else if (ext === 'pdf') {
+                    app.mediaViewerType = 'pdf';
+                } else if (['mp4','webm'].includes(ext)) {
+                    app.mediaViewerType = 'video';
+                } else if (['mp3','wav','ogg'].includes(ext)) {
+                    app.mediaViewerType = 'audio';
+                } else {
+                    app.mediaViewerType = 'other';
+                }
+                app.showMediaViewer = true;
             };
         },
 

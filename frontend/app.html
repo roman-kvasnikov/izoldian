@@ -1102,6 +1102,66 @@
 				</div>
 			</div>
 
+			<!-- Media Viewer -->
+			<div
+				x-show="showMediaViewer"
+				class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center"
+				@click.self="showMediaViewer = false"
+				@keydown.escape.window="showMediaViewer = false"
+			>
+				<div class="relative w-[calc(100%-2rem)] max-w-5xl max-h-[90vh] flex flex-col">
+					<!-- Header -->
+					<div class="flex items-center justify-between mb-3">
+						<span class="text-white text-sm truncate" x-text="mediaViewerName"></span>
+						<div class="flex items-center gap-2">
+							<a
+								:href="mediaViewerUrl"
+								download
+								class="px-3 py-1.5 text-xs bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-200"
+							>Download</a>
+							<button
+								@click="showMediaViewer = false"
+								class="text-gray-400 hover:text-white p-1"
+							>
+								<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+								</svg>
+							</button>
+						</div>
+					</div>
+					<!-- Content -->
+					<div class="flex-1 overflow-auto flex items-center justify-center bg-gray-900 rounded-xl border border-gray-700">
+						<img
+							x-show="mediaViewerType === 'image'"
+							:src="mediaViewerUrl"
+							class="max-w-full max-h-[80vh] object-contain"
+							:alt="mediaViewerName"
+						/>
+						<iframe
+							x-show="mediaViewerType === 'pdf'"
+							:src="mediaViewerUrl"
+							class="w-full h-[80vh]"
+						></iframe>
+						<video
+							x-show="mediaViewerType === 'video'"
+							:src="mediaViewerUrl"
+							controls
+							class="max-w-full max-h-[80vh]"
+						></video>
+						<audio
+							x-show="mediaViewerType === 'audio'"
+							:src="mediaViewerUrl"
+							controls
+							class="w-full max-w-md"
+						></audio>
+						<div x-show="mediaViewerType === 'other'" class="text-gray-400 p-8 text-center">
+							<p class="mb-2" x-text="mediaViewerName"></p>
+							<a :href="mediaViewerUrl" download class="text-blue-400 hover:underline">Download file</a>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<!-- Share Dialog -->
 			<div
 				x-show="showShare"

@@ -54,6 +54,20 @@ def build_file_tree(base_dir: str, rel_prefix: str = "") -> list[dict]:
                 "path": rel_path,
                 "type": "file",
             })
+        else:
+            ext = os.path.splitext(entry)[1].lower()
+            MEDIA_EXTENSIONS = {
+                ".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg",
+                ".pdf",
+                ".mp3", ".wav", ".ogg", ".mp4", ".webm",
+            }
+            if ext in MEDIA_EXTENSIONS:
+                items.append({
+                    "name": entry,
+                    "path": rel_path,
+                    "type": "media",
+                    "ext": ext,
+                })
     return items
 
 
