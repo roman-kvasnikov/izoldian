@@ -3,6 +3,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
 
 # default values (can be overridden by docker-compose)
 ENV HOST=0.0.0.0
@@ -15,9 +16,7 @@ RUN useradd -u 1000 -m appuser
 
 # install dependencies
 COPY backend/requirements.txt .
-
-RUN pip install --no-cache-dir --upgrade pip \
- && pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # copy source
 COPY --chown=appuser:appuser backend/ ./backend/
@@ -30,6 +29,9 @@ WORKDIR /app/backend
 
 EXPOSE 8000
 
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')" || exit 1
+
 USER appuser
 
-CMD ["sh", "-c", "uvicorn main:app --host $HOST --port $PORT"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
