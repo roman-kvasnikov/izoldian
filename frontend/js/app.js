@@ -735,6 +735,7 @@ function noteApp() {
             preview.querySelectorAll('pre.code-block').forEach(pre => {
                 if (pre.parentElement && pre.parentElement.classList.contains('code-block-wrapper')) return;
                 const lang = pre.getAttribute('data-lang') || '';
+                console.log('Processing code block, lang:', lang, 'data-lang attr:', pre.getAttribute('data-lang'), 'classes:', pre.className);
                 const wrapper = document.createElement('div');
                 wrapper.className = 'code-block-wrapper';
                 pre.parentNode.insertBefore(wrapper, pre);
@@ -746,6 +747,9 @@ function noteApp() {
                     wrapper.appendChild(label);
                 }
             });
+            // Also check if there are pre elements without code-block class
+            const allPres = preview.querySelectorAll('pre');
+            console.log('Total pre elements:', allPres.length, 'with code-block:', preview.querySelectorAll('pre.code-block').length);
 
             // Mermaid diagrams
             const mermaidBlocks = preview.querySelectorAll('code.language-mermaid');
