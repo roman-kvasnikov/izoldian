@@ -171,12 +171,16 @@ input::placeholder {
 
 .markdown-body pre.code-block code {
     background: none;
-    padding: 0.2em 0;
-    color: var(--text);
+    padding: 1em;
     font-size: 1em;
     display: block;
     line-height: 1.45;
-    counter-reset: line;
+}
+
+/* Let highlight.js theme control code colors */
+.markdown-body pre.code-block code.hljs {
+    background: none;
+    padding: 1em;
 }
 
 .markdown-body pre.code-block .code-line {
@@ -246,7 +250,6 @@ input::placeholder {
 .markdown-body pre:not(.code-block) code {
     background: none;
     padding: 0;
-    color: var(--text);
     font-size: 0.95em;
     line-height: 1.5;
 }

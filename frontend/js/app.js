@@ -667,15 +667,15 @@ function noteApp() {
             const preview = this.$refs.preview;
             if (!preview) return;
 
-            // Syntax highlighting + line numbers for code blocks
-            preview.querySelectorAll('pre code').forEach(block => {
-                if (block.classList.contains('language-mermaid')) return;
+            // Syntax highlighting for code blocks
+            preview.querySelectorAll('pre code:not(.language-mermaid)').forEach(block => {
+                if (block.classList.contains('hljs')) return;
 
                 const pre = block.parentElement;
                 if (!pre || pre.classList.contains('code-processed')) return;
                 pre.classList.add('code-processed', 'code-block');
 
-                // Detect language
+                // Detect language for label
                 let lang = '';
                 for (const cls of block.classList) {
                     if (cls.startsWith('language-')) {
@@ -684,44 +684,10 @@ function noteApp() {
                     }
                 }
 
-                // Highlight: get raw text, run hljs, get HTML with spans
-                const rawText = block.textContent;
-                let highlighted;
-                try {
-                    if (lang && hljs.getLanguage(lang)) {
-                        highlighted = hljs.highlight(rawText, { language: lang }).value;
-                    } else {
-                        highlighted = hljs.highlightAuto(rawText).value;
-                    }
-                } catch (e) {
-                    highlighted = block.innerHTML;
-                }
-                block.classList.add('hljs');
+                // Apply syntax highlighting directly on DOM element
+                hljs.highlightElement(block);
 
-                // Add line numbers — split highlighted HTML preserving spans
-                const rawLines = highlighted.split('\n');
-                if (rawLines.length > 1 && rawLines[rawLines.length - 1].trim() === '') rawLines.pop();
-
-                let openStack = [];
-                block.innerHTML = rawLines.map(function(line, i) {
-                    const prefix = openStack.join('');
-
-                    const tagRegex = /<\/?span[^>]*>/g;
-                    let m;
-                    while ((m = tagRegex.exec(line)) !== null) {
-                        if (m[0].startsWith('</')) {
-                            openStack.pop();
-                        } else {
-                            openStack.push(m[0]);
-                        }
-                    }
-
-                    const suffix = openStack.map(() => '</span>').join('');
-                    const content = prefix + line + suffix;
-                    return '<span class="code-line"><span class="line-number">' + (i + 1) + '</span><span class="line-content">' + (content || ' ') + '</span></span>';
-                }).join('');
-
-                // Wrap pre in container for sticky label
+                // Wrap pre in container for sticky language label
                 const wrapper = document.createElement('div');
                 wrapper.className = 'code-block-wrapper';
                 pre.parentNode.insertBefore(wrapper, pre);
