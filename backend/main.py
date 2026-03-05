@@ -98,10 +98,14 @@ async def landing_page():
     return FileResponse(os.path.join(frontend_dir, "landing.html"))
 
 
-@app.get("/icon.svg")
-async def icon():
-    return FileResponse(os.path.join(frontend_dir, "icon.svg"), media_type="image/svg+xml")
+@app.get("/favicon-{size}.png")
+async def favicon(size: str):
+    return FileResponse(os.path.join(frontend_dir, f"favicon-{size}.png"), media_type="image/png")
 
+
+@app.get("/izoldian.png")
+async def izoldian_icon():
+    return FileResponse(os.path.join(frontend_dir, "izoldian.png"), media_type="image/png")
 
 
 # Serve static assets

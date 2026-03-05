@@ -1,225 +1,111 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Izoldian — Self-hosted Knowledge Base</title>
     <meta name="description" content="Self-hosted note-taking and knowledge management. Markdown, wikilinks, graphs, themes, OIDC auth. Your knowledge under your control.">
-    <link rel="icon" type="image/svg+xml" href="/icon.svg">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+    <link rel="apple-touch-icon" href="/favicon-96.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
         :root {
-            --bg: #0a0b0f;
-            --bg-2: #111318;
-            --bg-3: #181a22;
-            --surface: #1e2028;
-            --border: #2a2d38;
-            --text: #e2e4ea;
-            --text-muted: #8b8fa3;
-            --accent: #3b82f6;
-            --accent-2: #8b5cf6;
+            --bg: #0a0b0f; --bg-2: #111318; --bg-3: #181a22; --surface: #1e2028;
+            --border: #2a2d38; --text: #e2e4ea; --text-muted: #8b8fa3;
+            --accent: #3b82f6; --accent-2: #8b5cf6;
             --gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
         }
-
         html { scroll-behavior: smooth; }
-
-        body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        /* ===== Utilities ===== */
+        body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; overflow-x: hidden; }
         .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
         .gradient-text { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .mono { font-family: 'Fira Code', monospace; }
+        .glow-orb { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.15; pointer-events: none; z-index: 0; }
 
-        /* ===== Glow Effects ===== */
-        .glow-orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(120px);
-            opacity: 0.15;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* ===== Nav ===== */
-        nav {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-            background: rgba(10, 11, 15, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(42, 45, 56, 0.5);
-        }
-        nav .inner {
-            max-width: 1200px; margin: 0 auto; padding: 0 24px;
-            display: flex; align-items: center; justify-content: space-between;
-            height: 64px;
-        }
-        nav .logo {
-            display: flex; align-items: center; gap: 10px;
-            font-weight: 700; font-size: 1.25rem; text-decoration: none; color: var(--text);
-        }
+        /* Nav */
+        nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,11,15,0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(42,45,56,0.5); }
+        nav .inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+        nav .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.25rem; text-decoration: none; color: var(--text); }
         nav .logo img { width: 32px; height: 32px; border-radius: 8px; }
-        nav .links { display: flex; align-items: center; gap: 32px; }
-        nav .links a {
-            color: var(--text-muted); text-decoration: none; font-size: 0.9rem;
-            font-weight: 500; transition: color 0.2s;
-        }
+        nav .links { display: flex; align-items: center; gap: 24px; }
+        nav .links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
         nav .links a:hover { color: var(--text); }
-        .btn-primary {
-            display: inline-flex; align-items: center; gap: 8px;
-            background: var(--gradient); color: white; font-weight: 600;
-            padding: 10px 24px; border-radius: 10px; text-decoration: none;
-            font-size: 0.9rem; transition: opacity 0.2s, transform 0.2s;
-            border: none; cursor: pointer;
-        }
+        nav .right-group { display: flex; align-items: center; gap: 12px; }
+        .lang-btn { background: var(--bg-3); border: 1px solid var(--border); color: var(--text-muted); padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .lang-btn:hover { border-color: var(--accent); color: var(--text); }
+        .btn-primary { display: inline-flex; align-items: center; gap: 8px; background: var(--gradient); color: white; font-weight: 600; padding: 10px 24px; border-radius: 10px; text-decoration: none; font-size: 0.9rem; transition: opacity 0.2s, transform 0.2s; border: none; cursor: pointer; }
         .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-        .btn-outline {
-            display: inline-flex; align-items: center; gap: 8px;
-            background: transparent; color: var(--text); font-weight: 600;
-            padding: 10px 24px; border-radius: 10px; text-decoration: none;
-            font-size: 0.9rem; border: 1px solid var(--border); transition: all 0.2s;
-            cursor: pointer;
-        }
+        .btn-outline { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--text); font-weight: 600; padding: 10px 24px; border-radius: 10px; text-decoration: none; font-size: 0.9rem; border: 1px solid var(--border); transition: all 0.2s; cursor: pointer; }
         .btn-outline:hover { border-color: var(--accent); background: rgba(59,130,246,0.08); }
 
-        /* ===== Hero ===== */
-        .hero {
-            position: relative; padding: 160px 0 100px; text-align: center;
-            overflow: hidden;
-        }
-        .hero h1 {
-            font-size: clamp(2.5rem, 6vw, 4.5rem);
-            font-weight: 800; line-height: 1.1; margin-bottom: 24px;
-            letter-spacing: -0.02em;
-        }
-        .hero p {
-            font-size: clamp(1rem, 2vw, 1.25rem);
-            color: var(--text-muted); max-width: 600px; margin: 0 auto 40px;
-        }
+        /* Hero */
+        .hero { position: relative; padding: 160px 0 100px; text-align: center; overflow: hidden; }
+        .hero h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 800; line-height: 1.1; margin-bottom: 24px; letter-spacing: -0.02em; }
+        .hero p { font-size: clamp(1rem, 2vw, 1.25rem); color: var(--text-muted); max-width: 600px; margin: 0 auto 40px; }
         .hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-        .hero-tag {
-            display: inline-flex; align-items: center; gap: 6px;
-            background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2);
-            border-radius: 100px; padding: 6px 16px; font-size: 0.8rem;
-            color: var(--accent); margin-bottom: 24px; font-weight: 500;
-        }
+        .hero-tag { display: inline-flex; align-items: center; gap: 6px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); border-radius: 100px; padding: 6px 16px; font-size: 0.8rem; color: var(--accent); margin-bottom: 24px; font-weight: 500; }
         .hero-tag .dot { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; }
 
-        /* ===== Terminal Preview ===== */
-        .terminal {
-            max-width: 700px; margin: 60px auto 0; background: var(--bg-2);
-            border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
-            text-align: left; box-shadow: 0 24px 64px rgba(0,0,0,0.4);
-        }
-        .terminal-bar {
-            display: flex; align-items: center; gap: 8px;
-            padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--bg-3);
-        }
+        /* Terminal */
+        .terminal { max-width: 700px; margin: 60px auto 0; background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; text-align: left; box-shadow: 0 24px 64px rgba(0,0,0,0.4); }
+        .terminal-bar { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--bg-3); }
         .terminal-dot { width: 12px; height: 12px; border-radius: 50%; }
-        .terminal-dot.r { background: #ef4444; }
-        .terminal-dot.y { background: #eab308; }
-        .terminal-dot.g { background: #22c55e; }
+        .terminal-dot.r { background: #ef4444; } .terminal-dot.y { background: #eab308; } .terminal-dot.g { background: #22c55e; }
         .terminal-body { padding: 20px 24px; font-family: 'Fira Code', monospace; font-size: 0.85rem; line-height: 1.8; }
-        .terminal-body .prompt { color: #22c55e; }
-        .terminal-body .cmd { color: var(--text); }
-        .terminal-body .comment { color: #6b7280; }
-        .terminal-body .url { color: #60a5fa; }
+        .terminal-body .prompt { color: #22c55e; } .terminal-body .cmd { color: var(--text); } .terminal-body .comment { color: #6b7280; } .terminal-body .url { color: #60a5fa; }
 
-        /* ===== Features ===== */
+        /* Features */
         .features { padding: 120px 0; position: relative; }
         .features-header { text-align: center; margin-bottom: 64px; }
         .features-header h2 { font-size: 2.5rem; font-weight: 800; margin-bottom: 16px; }
         .features-header p { color: var(--text-muted); font-size: 1.1rem; max-width: 500px; margin: 0 auto; }
-        .features-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
-        }
-        .feature-card {
-            background: var(--bg-2); border: 1px solid var(--border);
-            border-radius: 16px; padding: 32px; transition: all 0.3s;
-            position: relative; overflow: hidden;
-        }
+        .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .feature-card { background: var(--bg-2); border: 1px solid var(--border); border-radius: 16px; padding: 32px; transition: all 0.3s; position: relative; overflow: hidden; }
         .feature-card:hover { border-color: rgba(59,130,246,0.3); transform: translateY(-4px); }
-        .feature-card .icon {
-            width: 48px; height: 48px; border-radius: 12px; display: flex;
-            align-items: center; justify-content: center; margin-bottom: 20px;
-            background: rgba(59,130,246,0.1); color: var(--accent);
-        }
+        .feature-card .icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; background: rgba(59,130,246,0.1); color: var(--accent); }
         .feature-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; }
         .feature-card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; }
 
-        /* ===== Tech Stack ===== */
+        /* Stack */
         .stack { padding: 100px 0; position: relative; }
         .stack-header { text-align: center; margin-bottom: 48px; }
         .stack-header h2 { font-size: 2.5rem; font-weight: 800; margin-bottom: 16px; }
-        .stack-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 800px; margin: 0 auto;
-        }
-        .stack-card {
-            background: var(--bg-2); border: 1px solid var(--border);
-            border-radius: 16px; padding: 28px 32px;
-        }
-        .stack-card h3 {
-            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em;
-            color: var(--text-muted); margin-bottom: 16px; font-weight: 600;
-        }
+        .stack-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 800px; margin: 0 auto; }
+        .stack-card { background: var(--bg-2); border: 1px solid var(--border); border-radius: 16px; padding: 28px 32px; }
+        .stack-card h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 16px; font-weight: 600; }
         .stack-tags { display: flex; flex-wrap: wrap; gap: 8px; }
-        .stack-tag {
-            background: var(--bg-3); border: 1px solid var(--border);
-            padding: 6px 14px; border-radius: 8px; font-size: 0.85rem;
-            font-weight: 500; color: var(--text);
-        }
+        .stack-tag { background: var(--bg-3); border: 1px solid var(--border); padding: 6px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 500; color: var(--text); }
 
-        /* ===== Themes Showcase ===== */
+        /* Themes */
         .themes { padding: 100px 0; }
         .themes-header { text-align: center; margin-bottom: 48px; }
         .themes-header h2 { font-size: 2.5rem; font-weight: 800; margin-bottom: 16px; }
         .themes-header p { color: var(--text-muted); font-size: 1.1rem; }
-        .themes-grid {
-            display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; max-width: 800px; margin: 0 auto;
-        }
-        .theme-pill {
-            display: flex; align-items: center; gap: 8px;
-            background: var(--bg-2); border: 1px solid var(--border);
-            padding: 10px 18px; border-radius: 10px; font-size: 0.85rem; font-weight: 500;
-        }
+        .themes-grid { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; max-width: 800px; margin: 0 auto; }
+        .theme-pill { display: flex; align-items: center; gap: 8px; background: var(--bg-2); border: 1px solid var(--border); padding: 10px 18px; border-radius: 10px; font-size: 0.85rem; font-weight: 500; }
         .theme-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); }
 
-        /* ===== CTA ===== */
-        .cta {
-            padding: 100px 0; text-align: center; position: relative;
-        }
-        .cta-box {
-            background: var(--bg-2); border: 1px solid var(--border);
-            border-radius: 24px; padding: 64px 48px; position: relative; overflow: hidden;
-        }
+        /* CTA */
+        .cta { padding: 100px 0; text-align: center; position: relative; }
+        .cta-box { background: var(--bg-2); border: 1px solid var(--border); border-radius: 24px; padding: 64px 48px; position: relative; overflow: hidden; }
         .cta-box h2 { font-size: 2.2rem; font-weight: 800; margin-bottom: 16px; }
-        .cta-box p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 32px; max-width: 500px; margin-left: auto; margin-right: auto; margin-bottom: 32px; }
+        .cta-box p { color: var(--text-muted); font-size: 1.1rem; max-width: 500px; margin: 0 auto 32px; }
         .cta-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
 
-        /* ===== Footer ===== */
-        footer {
-            border-top: 1px solid var(--border); padding: 32px 0;
-            text-align: center; color: var(--text-muted); font-size: 0.85rem;
-        }
-        footer a { color: var(--text-muted); text-decoration: none; }
-        footer a:hover { color: var(--text); }
+        /* Footer */
+        footer { border-top: 1px solid var(--border); padding: 32px 0; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
+        footer a { color: var(--text-muted); text-decoration: none; } footer a:hover { color: var(--text); }
 
-        /* ===== Animations ===== */
-        .fade-up {
-            opacity: 0; transform: translateY(30px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
+        /* Animations */
+        .fade-up { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
         .fade-up.visible { opacity: 1; transform: translateY(0); }
 
-        /* ===== Responsive ===== */
+        /* Responsive */
         @media (max-width: 768px) {
             .features-grid { grid-template-columns: 1fr; }
             .stack-grid { grid-template-columns: 1fr; }
@@ -234,195 +120,131 @@
 </head>
 <body>
 
-<!-- Nav -->
 <nav>
     <div class="inner">
-        <a href="#" class="logo">
-            <img src="/icon.svg" alt="Izoldian">
-            Izoldian
-        </a>
+        <a href="#" class="logo"><img src="/izoldian.png" alt="Izoldian"> Izoldian</a>
         <div class="links">
-            <a href="#features">Features</a>
-            <a href="#stack">Tech Stack</a>
-            <a href="#themes">Themes</a>
+            <a href="#features" data-i18n="nav_features">Возможности</a>
+            <a href="#stack" data-i18n="nav_stack">Технологии</a>
+            <a href="#themes" data-i18n="nav_themes">Темы</a>
             <a href="https://github.com/roman-kvasnikov/izoldian" target="_blank">GitHub</a>
         </div>
-        <a href="https://github.com/roman-kvasnikov/izoldian" target="_blank" class="btn-outline" style="padding: 8px 18px; font-size: 0.8rem;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-            Star on GitHub
-        </a>
+        <div class="right-group">
+            <button class="lang-btn" id="lang-toggle">EN</button>
+            <a href="https://github.com/roman-kvasnikov/izoldian" target="_blank" class="btn-outline" style="padding: 8px 18px; font-size: 0.8rem;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                <span data-i18n="nav_github">GitHub</span>
+            </a>
+        </div>
     </div>
 </nav>
 
-<!-- Hero -->
 <section class="hero">
     <div class="glow-orb" style="width: 600px; height: 600px; background: #3b82f6; top: -200px; left: 50%; transform: translateX(-50%);"></div>
     <div class="container" style="position: relative; z-index: 1;">
-        <div class="hero-tag">
-            <span class="dot"></span>
-            Open Source &middot; Self-Hosted &middot; MIT License
-        </div>
-        <h1>Your knowledge<br><span class="gradient-text">under your control</span></h1>
-        <p>Self-hosted note-taking and knowledge management app. Markdown, wikilinks, graphs, diagrams, math — all in one place.</p>
+        <div class="hero-tag"><span class="dot"></span> <span data-i18n="hero_tag">Открытый код &middot; Self-Hosted &middot; MIT</span></div>
+        <h1 data-i18n="hero_title" data-i18n-html="true">Ваши знания —<br><span class="gradient-text">под вашим контролем</span></h1>
+        <p data-i18n="hero_desc">Самостоятельно размещаемое приложение для заметок и управления знаниями. Markdown, вики-ссылки, графы, диаграммы, формулы — всё в одном месте.</p>
         <div class="hero-buttons">
             <a href="https://github.com/roman-kvasnikov/izoldian" target="_blank" class="btn-primary">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-                Get Started
+                <span data-i18n="hero_btn_start">Начать</span>
             </a>
-            <a href="#features" class="btn-outline">See Features</a>
+            <a href="#features" class="btn-outline"><span data-i18n="hero_btn_features">Возможности</span></a>
         </div>
-
-        <!-- Terminal -->
         <div class="terminal fade-up">
             <div class="terminal-bar">
-                <span class="terminal-dot r"></span>
-                <span class="terminal-dot y"></span>
-                <span class="terminal-dot g"></span>
+                <span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span>
                 <span style="flex:1; text-align:center; color: var(--text-muted); font-size: 0.75rem;">Terminal</span>
             </div>
             <div class="terminal-body">
-                <div><span class="comment"># Quick start with Docker</span></div>
+                <div><span class="comment" data-i18n="term_comment1"># Быстрый старт с Docker</span></div>
                 <div><span class="prompt">$</span> <span class="cmd">mkdir izoldian && cd izoldian</span></div>
                 <div><span class="prompt">$</span> <span class="cmd">docker compose up -d</span></div>
                 <div style="height: 8px;"></div>
-                <div><span class="comment"># Open in your browser</span></div>
+                <div><span class="comment" data-i18n="term_comment2"># Откройте в браузере</span></div>
                 <div><span class="prompt">$</span> <span class="cmd">open</span> <span class="url">http://localhost:8000</span></div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Features -->
 <section class="features" id="features">
     <div class="glow-orb" style="width: 500px; height: 500px; background: #8b5cf6; top: 200px; right: -200px;"></div>
     <div class="container">
         <div class="features-header fade-up">
-            <h2>Everything you need</h2>
-            <p>A complete knowledge management system, right on your server.</p>
+            <h2 data-i18n="feat_title">Всё что нужно</h2>
+            <p data-i18n="feat_desc">Полноценная система управления знаниями на вашем сервере.</p>
         </div>
         <div class="features-grid">
             <div class="feature-card fade-up">
-                <div class="icon">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                </div>
-                <h3>Markdown Editor</h3>
-                <p>Full GFM support with live preview, split view, formatting toolbar, and keyboard shortcuts.</p>
+                <div class="icon"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></div>
+                <h3 data-i18n="f1_title">Markdown-редактор</h3>
+                <p data-i18n="f1_desc">Полная поддержка GFM с живым превью, split view, панелью форматирования и горячими клавишами.</p>
             </div>
             <div class="feature-card fade-up">
-                <div class="icon" style="background: rgba(139,92,246,0.1); color: #8b5cf6;">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
-                </div>
-                <h3>Syntax Highlighting</h3>
-                <p>30+ languages with line numbers via highlight.js. Themes auto-adapt to your color scheme.</p>
+                <div class="icon" style="background: rgba(139,92,246,0.1); color: #8b5cf6;"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg></div>
+                <h3 data-i18n="f2_title">Подсветка синтаксиса</h3>
+                <p data-i18n="f2_desc">30+ языков с нумерацией строк через highlight.js. Темы автоматически адаптируются.</p>
             </div>
             <div class="feature-card fade-up">
-                <div class="icon" style="background: rgba(34,197,94,0.1); color: #22c55e;">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-                </div>
-                <h3>Wikilinks & Graph</h3>
-                <p>Link notes with <span class="mono" style="color: var(--accent);">[[wikilinks]]</span>. Visualize your knowledge graph interactively.</p>
+                <div class="icon" style="background: rgba(34,197,94,0.1); color: #22c55e;"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg></div>
+                <h3 data-i18n="f3_title">Вики-ссылки и граф</h3>
+                <p data-i18n="f3_desc" data-i18n-html="true">Связывайте заметки через <span class="mono" style="color: var(--accent);">[[вики-ссылки]]</span>. Визуализируйте граф знаний интерактивно.</p>
             </div>
             <div class="feature-card fade-up">
-                <div class="icon" style="background: rgba(234,179,8,0.1); color: #eab308;">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                </div>
-                <h3>Mermaid Diagrams</h3>
-                <p>Flowcharts, sequence diagrams, gantt charts, and more — rendered right inside your notes.</p>
+                <div class="icon" style="background: rgba(234,179,8,0.1); color: #eab308;"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
+                <h3 data-i18n="f4_title">Диаграммы Mermaid</h3>
+                <p data-i18n="f4_desc">Блок-схемы, sequence-диаграммы, диаграммы Ганта и другие — рендерятся прямо в заметках.</p>
             </div>
             <div class="feature-card fade-up">
-                <div class="icon" style="background: rgba(236,72,153,0.1); color: #ec4899;">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-                </div>
-                <h3>MathJax</h3>
-                <p>Beautiful LaTeX math equations inline and display mode. From simple formulas to complex notation.</p>
+                <div class="icon" style="background: rgba(236,72,153,0.1); color: #ec4899;"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg></div>
+                <h3 data-i18n="f5_title">Формулы MathJax</h3>
+                <p data-i18n="f5_desc">Красивые LaTeX-формулы в строке и отдельным блоком. От простых выражений до сложных нотаций.</p>
             </div>
             <div class="feature-card fade-up">
-                <div class="icon" style="background: rgba(6,182,212,0.1); color: #06b6d4;">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
-                </div>
-                <h3>16+ Themes</h3>
-                <p>Dracula, Nord, Catppuccin, One Dark, Rosé Pine, Solarized, GitHub, and more. Dark &amp; light.</p>
+                <div class="icon" style="background: rgba(6,182,212,0.1); color: #06b6d4;"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg></div>
+                <h3 data-i18n="f6_title">16+ тем оформления</h3>
+                <p data-i18n="f6_desc">Dracula, Nord, Catppuccin, One Dark, Rosé Pine, Solarized, GitHub и другие. Тёмные и светлые.</p>
             </div>
             <div class="feature-card fade-up">
-                <div class="icon" style="background: rgba(249,115,22,0.1); color: #f97316;">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                </div>
-                <h3>Multi-User & OIDC</h3>
-                <p>Built-in auth or connect your identity provider — Authelia, Keycloak, and any OIDC-compatible service.</p>
+                <div class="icon" style="background: rgba(249,115,22,0.1); color: #f97316;"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg></div>
+                <h3 data-i18n="f7_title">Многопользовательский + OIDC</h3>
+                <p data-i18n="f7_desc">Встроенная авторизация или подключение провайдера — Authelia, Keycloak и любой OIDC-совместимый сервис.</p>
             </div>
             <div class="feature-card fade-up">
-                <div class="icon" style="background: rgba(99,102,241,0.1); color: #6366f1;">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
-                </div>
-                <h3>Note Sharing</h3>
-                <p>Share individual notes via public links with unique tokens. One click to create or revoke access.</p>
+                <div class="icon" style="background: rgba(99,102,241,0.1); color: #6366f1;"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg></div>
+                <h3 data-i18n="f8_title">Публикация заметок</h3>
+                <p data-i18n="f8_desc">Делитесь заметками по публичным ссылкам с уникальными токенами. Одним кликом создать или отозвать доступ.</p>
             </div>
             <div class="feature-card fade-up">
-                <div class="icon" style="background: rgba(16,185,129,0.1); color: #10b981;">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                </div>
-                <h3>Mobile Ready</h3>
-                <p>Responsive design with bottom navigation, touch-friendly controls, and optimized layouts for any screen.</p>
+                <div class="icon" style="background: rgba(16,185,129,0.1); color: #10b981;"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg></div>
+                <h3 data-i18n="f9_title">Мобильная версия</h3>
+                <p data-i18n="f9_desc">Адаптивный дизайн с нижней навигацией, удобными элементами управления и оптимизированной вёрсткой.</p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Tech Stack -->
 <section class="stack" id="stack">
     <div class="container">
         <div class="stack-header fade-up">
-            <h2>Built with <span class="gradient-text">modern tools</span></h2>
+            <h2 data-i18n="stack_title" data-i18n-html="true">Построено на <span class="gradient-text">современных технологиях</span></h2>
         </div>
         <div class="stack-grid">
-            <div class="stack-card fade-up">
-                <h3>Backend</h3>
-                <div class="stack-tags">
-                    <span class="stack-tag">Python</span>
-                    <span class="stack-tag">FastAPI</span>
-                    <span class="stack-tag">SQLite</span>
-                    <span class="stack-tag">JWT</span>
-                    <span class="stack-tag">OIDC</span>
-                    <span class="stack-tag">bcrypt</span>
-                </div>
-            </div>
-            <div class="stack-card fade-up">
-                <h3>Frontend</h3>
-                <div class="stack-tags">
-                    <span class="stack-tag">Alpine.js</span>
-                    <span class="stack-tag">Tailwind CSS</span>
-                    <span class="stack-tag">marked.js</span>
-                    <span class="stack-tag">highlight.js</span>
-                </div>
-            </div>
-            <div class="stack-card fade-up">
-                <h3>Rendering</h3>
-                <div class="stack-tags">
-                    <span class="stack-tag">MathJax</span>
-                    <span class="stack-tag">Mermaid</span>
-                    <span class="stack-tag">vis-network</span>
-                    <span class="stack-tag">DOMPurify</span>
-                </div>
-            </div>
-            <div class="stack-card fade-up">
-                <h3>Infrastructure</h3>
-                <div class="stack-tags">
-                    <span class="stack-tag">Docker</span>
-                    <span class="stack-tag">Docker Compose</span>
-                    <span class="stack-tag">GHCR</span>
-                    <span class="stack-tag">uvicorn</span>
-                </div>
-            </div>
+            <div class="stack-card fade-up"><h3 data-i18n="stack_backend">Бэкенд</h3><div class="stack-tags"><span class="stack-tag">Python</span><span class="stack-tag">FastAPI</span><span class="stack-tag">SQLite</span><span class="stack-tag">JWT</span><span class="stack-tag">OIDC</span><span class="stack-tag">bcrypt</span></div></div>
+            <div class="stack-card fade-up"><h3 data-i18n="stack_frontend">Фронтенд</h3><div class="stack-tags"><span class="stack-tag">Alpine.js</span><span class="stack-tag">Tailwind CSS</span><span class="stack-tag">marked.js</span><span class="stack-tag">highlight.js</span></div></div>
+            <div class="stack-card fade-up"><h3 data-i18n="stack_rendering">Рендеринг</h3><div class="stack-tags"><span class="stack-tag">MathJax</span><span class="stack-tag">Mermaid</span><span class="stack-tag">vis-network</span><span class="stack-tag">DOMPurify</span></div></div>
+            <div class="stack-card fade-up"><h3 data-i18n="stack_infra">Инфраструктура</h3><div class="stack-tags"><span class="stack-tag">Docker</span><span class="stack-tag">Docker Compose</span><span class="stack-tag">GHCR</span><span class="stack-tag">uvicorn</span></div></div>
         </div>
     </div>
 </section>
 
-<!-- Themes -->
 <section class="themes" id="themes">
     <div class="container">
         <div class="themes-header fade-up">
-            <h2>Themes for every taste</h2>
-            <p style="color: var(--text-muted);">16+ built-in themes. Switch instantly. Dark and light.</p>
+            <h2 data-i18n="themes_title">Темы на любой вкус</h2>
+            <p data-i18n="themes_desc" style="color: var(--text-muted);">16+ встроенных тем. Мгновенное переключение. Тёмные и светлые.</p>
         </div>
         <div class="themes-grid fade-up">
             <div class="theme-pill"><span class="theme-dot" style="background:#282a36;"></span> Dracula</div>
@@ -442,54 +264,126 @@
     </div>
 </section>
 
-<!-- CTA -->
 <section class="cta">
     <div class="glow-orb" style="width: 500px; height: 500px; background: #3b82f6; bottom: -100px; left: 50%; transform: translateX(-50%);"></div>
     <div class="container" style="position: relative; z-index: 1;">
         <div class="cta-box fade-up">
-            <h2>Ready to own your knowledge?</h2>
-            <p>Deploy in 30 seconds with Docker. No accounts, no cloud, no tracking. Just your notes.</p>
+            <h2 data-i18n="cta_title">Готовы взять знания под контроль?</h2>
+            <p data-i18n="cta_desc">Разверните за 30 секунд через Docker. Без аккаунтов, без облака, без трекинга. Только ваши заметки.</p>
             <div class="cta-buttons">
                 <a href="https://github.com/roman-kvasnikov/izoldian" target="_blank" class="btn-primary">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-                    View on GitHub
+                    <span data-i18n="cta_btn_github">Открыть на GitHub</span>
                 </a>
                 <a href="https://github.com/roman-kvasnikov/izoldian#quick-start-docker" target="_blank" class="btn-outline">
-                    Read the Docs
+                    <span data-i18n="cta_btn_docs">Документация</span>
                 </a>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Footer -->
 <footer>
     <div class="container">
-        <p>&copy; 2025 Izoldian &middot; MIT License &middot; Made by <a href="https://github.com/roman-kvasnikov" target="_blank">Roman Kvasnikov</a></p>
+        <p data-i18n="footer" data-i18n-html="true">&copy; 2025 Izoldian &middot; Лицензия MIT &middot; Автор: <a href="https://github.com/roman-kvasnikov" target="_blank">Роман Квасников</a></p>
     </div>
 </footer>
 
 <script>
-    // Intersection Observer for fade-up animations
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry, i) => {
-            if (entry.isIntersecting) {
-                setTimeout(() => entry.target.classList.add('visible'), i * 80);
-                observer.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.15 });
+const i18n = {
+    ru: {
+        nav_features: 'Возможности', nav_stack: 'Технологии', nav_themes: 'Темы', nav_github: 'GitHub',
+        hero_tag: 'Открытый код &middot; Self-Hosted &middot; MIT',
+        hero_title: 'Ваши знания —<br><span class="gradient-text">под вашим контролем</span>',
+        hero_desc: 'Самостоятельно размещаемое приложение для заметок и управления знаниями. Markdown, вики-ссылки, графы, диаграммы, формулы — всё в одном месте.',
+        hero_btn_start: 'Начать', hero_btn_features: 'Возможности',
+        term_comment1: '# Быстрый старт с Docker', term_comment2: '# Откройте в браузере',
+        feat_title: 'Всё что нужно', feat_desc: 'Полноценная система управления знаниями на вашем сервере.',
+        f1_title: 'Markdown-редактор', f1_desc: 'Полная поддержка GFM с живым превью, split view, панелью форматирования и горячими клавишами.',
+        f2_title: 'Подсветка синтаксиса', f2_desc: '30+ языков с нумерацией строк через highlight.js. Темы автоматически адаптируются.',
+        f3_title: 'Вики-ссылки и граф', f3_desc: 'Связывайте заметки через <span class="mono" style="color: var(--accent);">[[вики-ссылки]]</span>. Визуализируйте граф знаний интерактивно.',
+        f4_title: 'Диаграммы Mermaid', f4_desc: 'Блок-схемы, sequence-диаграммы, диаграммы Ганта и другие — рендерятся прямо в заметках.',
+        f5_title: 'Формулы MathJax', f5_desc: 'Красивые LaTeX-формулы в строке и отдельным блоком. От простых выражений до сложных нотаций.',
+        f6_title: '16+ тем оформления', f6_desc: 'Dracula, Nord, Catppuccin, One Dark, Rosé Pine, Solarized, GitHub и другие. Тёмные и светлые.',
+        f7_title: 'Многопользовательский + OIDC', f7_desc: 'Встроенная авторизация или подключение провайдера — Authelia, Keycloak и любой OIDC-совместимый сервис.',
+        f8_title: 'Публикация заметок', f8_desc: 'Делитесь заметками по публичным ссылкам с уникальными токенами. Одним кликом создать или отозвать доступ.',
+        f9_title: 'Мобильная версия', f9_desc: 'Адаптивный дизайн с нижней навигацией, удобными элементами управления и оптимизированной вёрсткой.',
+        stack_title: 'Построено на <span class="gradient-text">современных технологиях</span>',
+        stack_backend: 'Бэкенд', stack_frontend: 'Фронтенд', stack_rendering: 'Рендеринг', stack_infra: 'Инфраструктура',
+        themes_title: 'Темы на любой вкус', themes_desc: '16+ встроенных тем. Мгновенное переключение. Тёмные и светлые.',
+        cta_title: 'Готовы взять знания под контроль?', cta_desc: 'Разверните за 30 секунд через Docker. Без аккаунтов, без облака, без трекинга. Только ваши заметки.',
+        cta_btn_github: 'Открыть на GitHub', cta_btn_docs: 'Документация',
+        footer: '&copy; 2025 Izoldian &middot; Лицензия MIT &middot; Автор: <a href="https://github.com/roman-kvasnikov" target="_blank">Роман Квасников</a>',
+    },
+    en: {
+        nav_features: 'Features', nav_stack: 'Tech Stack', nav_themes: 'Themes', nav_github: 'GitHub',
+        hero_tag: 'Open Source &middot; Self-Hosted &middot; MIT License',
+        hero_title: 'Your knowledge<br><span class="gradient-text">under your control</span>',
+        hero_desc: 'Self-hosted note-taking and knowledge management app. Markdown, wikilinks, graphs, diagrams, math — all in one place.',
+        hero_btn_start: 'Get Started', hero_btn_features: 'See Features',
+        term_comment1: '# Quick start with Docker', term_comment2: '# Open in your browser',
+        feat_title: 'Everything you need', feat_desc: 'A complete knowledge management system, right on your server.',
+        f1_title: 'Markdown Editor', f1_desc: 'Full GFM support with live preview, split view, formatting toolbar, and keyboard shortcuts.',
+        f2_title: 'Syntax Highlighting', f2_desc: '30+ languages with line numbers via highlight.js. Themes auto-adapt to your color scheme.',
+        f3_title: 'Wikilinks & Graph', f3_desc: 'Link notes with <span class="mono" style="color: var(--accent);">[[wikilinks]]</span>. Visualize your knowledge graph interactively.',
+        f4_title: 'Mermaid Diagrams', f4_desc: 'Flowcharts, sequence diagrams, gantt charts, and more — rendered right inside your notes.',
+        f5_title: 'MathJax', f5_desc: 'Beautiful LaTeX math equations inline and display mode. From simple formulas to complex notation.',
+        f6_title: '16+ Themes', f6_desc: 'Dracula, Nord, Catppuccin, One Dark, Rosé Pine, Solarized, GitHub, and more. Dark & light.',
+        f7_title: 'Multi-User & OIDC', f7_desc: 'Built-in auth or connect your identity provider — Authelia, Keycloak, and any OIDC-compatible service.',
+        f8_title: 'Note Sharing', f8_desc: 'Share individual notes via public links with unique tokens. One click to create or revoke access.',
+        f9_title: 'Mobile Ready', f9_desc: 'Responsive design with bottom navigation, touch-friendly controls, and optimized layouts for any screen.',
+        stack_title: 'Built with <span class="gradient-text">modern tools</span>',
+        stack_backend: 'Backend', stack_frontend: 'Frontend', stack_rendering: 'Rendering', stack_infra: 'Infrastructure',
+        themes_title: 'Themes for every taste', themes_desc: '16+ built-in themes. Switch instantly. Dark and light.',
+        cta_title: 'Ready to own your knowledge?', cta_desc: 'Deploy in 30 seconds with Docker. No accounts, no cloud, no tracking. Just your notes.',
+        cta_btn_github: 'View on GitHub', cta_btn_docs: 'Read the Docs',
+        footer: '&copy; 2025 Izoldian &middot; MIT License &middot; Made by <a href="https://github.com/roman-kvasnikov" target="_blank">Roman Kvasnikov</a>',
+    }
+};
 
-    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+let currentLang = localStorage.getItem('landing-lang') || 'ru';
 
-    // Smooth scroll for nav links
-    document.querySelectorAll('a[href^="#"]').forEach(a => {
-        a.addEventListener('click', e => {
-            e.preventDefault();
-            const target = document.querySelector(a.getAttribute('href'));
-            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
+function applyLang(lang) {
+    currentLang = lang;
+    localStorage.setItem('landing-lang', lang);
+    document.documentElement.lang = lang;
+    document.getElementById('lang-toggle').textContent = lang === 'ru' ? 'EN' : 'RU';
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        const text = i18n[lang][key];
+        if (text) {
+            if (el.hasAttribute('data-i18n-html')) { el.innerHTML = text; }
+            else { el.textContent = text; }
+        }
     });
+}
+
+document.getElementById('lang-toggle').addEventListener('click', () => {
+    applyLang(currentLang === 'ru' ? 'en' : 'ru');
+});
+
+// Init
+applyLang(currentLang);
+
+// Animations
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+            setTimeout(() => entry.target.classList.add('visible'), i * 80);
+            observer.unobserve(entry.target);
+        }
+    });
+}, { threshold: 0.15 });
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+        e.preventDefault();
+        const t = document.querySelector(a.getAttribute('href'));
+        if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+});
 </script>
 </body>
 </html>
