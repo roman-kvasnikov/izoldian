@@ -54,7 +54,7 @@ marked.use({
                 return '<span class="code-line"><span class="line-number">' + (i + 1) + '</span><span class="line-content">' + (content || ' ') + '</span></span>';
             }).join('');
 
-            return '<pre class="code-block" data-lang="' + language + '"><code class="hljs language-' + language + '">' + linesHtml + '</code></pre>';
+            return '<pre class="code-block"><code class="hljs language-' + language + '">' + linesHtml + '</code></pre>';
         }
     }
 });
@@ -716,7 +716,7 @@ function noteApp() {
             // Sanitize
             html = DOMPurify.sanitize(html, {
                 ADD_TAGS: ['iframe'],
-                ADD_ATTR: ['data-target', 'data-lang', 'class', 'id'],
+                ADD_ATTR: ['data-target', 'class', 'id'],
             });
 
             this.renderedContent = html;
@@ -734,8 +734,19 @@ function noteApp() {
             // Wrap code blocks in container + add language label
             preview.querySelectorAll('pre.code-block').forEach(pre => {
                 if (pre.parentElement && pre.parentElement.classList.contains('code-block-wrapper')) return;
-                const lang = pre.getAttribute('data-lang') || '';
-                console.log('Processing code block, lang:', lang, 'data-lang attr:', pre.getAttribute('data-lang'), 'classes:', pre.className);
+
+                // Get language from code element's class (language-xxx)
+                let lang = '';
+                const codeEl = pre.querySelector('code');
+                if (codeEl) {
+                    for (const cls of codeEl.classList) {
+                        if (cls.startsWith('language-') && cls !== 'language-') {
+                            lang = cls.replace('language-', '');
+                            break;
+                        }
+                    }
+                }
+
                 const wrapper = document.createElement('div');
                 wrapper.className = 'code-block-wrapper';
                 pre.parentNode.insertBefore(wrapper, pre);
@@ -747,9 +758,6 @@ function noteApp() {
                     wrapper.appendChild(label);
                 }
             });
-            // Also check if there are pre elements without code-block class
-            const allPres = preview.querySelectorAll('pre');
-            console.log('Total pre elements:', allPres.length, 'with code-block:', preview.querySelectorAll('pre.code-block').length);
 
             // Mermaid diagrams
             const mermaidBlocks = preview.querySelectorAll('code.language-mermaid');
