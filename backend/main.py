@@ -93,6 +93,11 @@ async def app_page():
     return FileResponse(os.path.join(frontend_dir, "app.html"))
 
 
+@app.get("/landing")
+async def landing_page():
+    return FileResponse(os.path.join(frontend_dir, "landing.html"))
+
+
 @app.get("/icon.svg")
 async def icon():
     return FileResponse(os.path.join(frontend_dir, "icon.svg"), media_type="image/svg+xml")
