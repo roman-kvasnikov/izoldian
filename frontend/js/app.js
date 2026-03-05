@@ -5,17 +5,32 @@ marked.use({
     breaks: true,
     gfm: true,
     renderer: {
-        code({ text, lang }) {
-            const language = (lang || '').trim();
+        code(token) {
+            // Handle both token object and positional args
+            let codeText, language;
+            if (typeof token === 'object' && token !== null) {
+                codeText = token.text;
+                language = (token.lang || '').trim();
+            } else {
+                codeText = String(token);
+                language = '';
+            }
+
+            // Let mermaid blocks pass through as-is for post-processing
+            if (language === 'mermaid') {
+                return '<pre><code class="language-mermaid">' + codeText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</code></pre>';
+            }
+
+            // Syntax highlighting
             let highlighted;
             try {
                 if (language && hljs.getLanguage(language)) {
-                    highlighted = hljs.highlight(text, { language }).value;
+                    highlighted = hljs.highlight(codeText, { language }).value;
                 } else {
-                    highlighted = hljs.highlightAuto(text).value;
+                    highlighted = hljs.highlightAuto(codeText).value;
                 }
             } catch (e) {
-                highlighted = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                highlighted = codeText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             }
 
             // Build line numbers
@@ -686,7 +701,13 @@ function noteApp() {
             });
 
             // Render markdown
-            let html = marked.parse(content);
+            let html;
+            try {
+                html = marked.parse(content);
+            } catch (e) {
+                console.error('marked.parse error:', e);
+                html = '<pre>' + content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>';
+            }
 
             // Sanitize
             html = DOMPurify.sanitize(html, {
