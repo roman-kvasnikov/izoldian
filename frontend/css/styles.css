@@ -138,14 +138,14 @@ input::placeholder {
     font-size: 16px;
 }
 
-.markdown-body h1 { font-size: 2em; font-weight: 700; margin: 1em 0 0.5em; color: var(--text-bright); border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
-.markdown-body h2 { font-size: 1.5em; font-weight: 600; margin: 0.8em 0 0.4em; color: var(--text-bright); border-bottom: 1px solid var(--border); padding-bottom: 0.2em; }
-.markdown-body h3 { font-size: 1.25em; font-weight: 600; margin: 0.6em 0 0.3em; color: var(--text-bright); }
-.markdown-body h4 { font-size: 1.1em; font-weight: 600; margin: 0.5em 0 0.25em; color: var(--text-bright); }
-.markdown-body h5 { font-size: 1em; font-weight: 600; margin: 0.5em 0 0.25em; color: var(--text-muted); }
-.markdown-body h6 { font-size: 0.9em; font-weight: 600; margin: 0.5em 0 0.25em; color: var(--text-muted); }
+.markdown-body h1 { font-size: 2em; font-weight: 700; margin: 1.2em 0 0.6em; color: var(--text-bright); }
+.markdown-body h2 { font-size: 1.5em; font-weight: 600; margin: 1em 0 0.5em; color: var(--text-bright); }
+.markdown-body h3 { font-size: 1.25em; font-weight: 600; margin: 0.8em 0 0.4em; color: var(--text-bright); }
+.markdown-body h4 { font-size: 1.1em; font-weight: 600; margin: 0.7em 0 0.35em; color: var(--text-bright); }
+.markdown-body h5 { font-size: 1em; font-weight: 600; margin: 0.6em 0 0.3em; color: var(--text-muted); }
+.markdown-body h6 { font-size: 0.9em; font-weight: 600; margin: 0.6em 0 0.3em; color: var(--text-muted); }
 
-.markdown-body p { margin: 0.5em 0; }
+.markdown-body p { margin: 0.8em 0; }
 
 .markdown-body a { color: var(--accent); text-decoration: none; }
 .markdown-body a:hover { text-decoration: underline; }
