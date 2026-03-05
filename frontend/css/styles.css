@@ -150,7 +150,7 @@ input::placeholder {
 .markdown-body a { color: var(--accent); text-decoration: none; }
 .markdown-body a:hover { text-decoration: underline; }
 
-.markdown-body code {
+.markdown-body code:not(pre code) {
     background: var(--border);
     padding: 0.15em 0.4em;
     border-radius: 4px;
@@ -379,7 +379,7 @@ svg.w-5 { width: 1.6rem !important; height: 1.6rem !important; }
 /* Scrollbar for light themes */
 :root[data-theme="light"] ::-webkit-scrollbar-thumb { background: #d1d5db; }
 :root[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
-:root[data-theme="light"] .markdown-body code { color: #be185d; }
+:root[data-theme="light"] .markdown-body code:not(pre code) { color: #be185d; }
 :root[data-theme="light"] .markdown-body pre.code-block .code-line:hover { background: rgba(0, 0, 0, 0.04); }
 
 /* ===== Mobile (<768px) ===== */
