@@ -54,8 +54,7 @@ marked.use({
                 return '<span class="code-line"><span class="line-number">' + (i + 1) + '</span><span class="line-content">' + (content || ' ') + '</span></span>';
             }).join('');
 
-            const langLabel = language ? '<span class="code-lang-label">' + language + '</span>' : '';
-            return '<div class="code-block-wrapper">' + langLabel + '<pre class="code-block"><code class="hljs language-' + language + '">' + linesHtml + '</code></pre></div>';
+            return '<pre class="code-block" data-lang="' + language + '"><code class="hljs language-' + language + '">' + linesHtml + '</code></pre>';
         }
     }
 });
@@ -717,7 +716,7 @@ function noteApp() {
             // Sanitize
             html = DOMPurify.sanitize(html, {
                 ADD_TAGS: ['iframe'],
-                ADD_ATTR: ['data-target', 'class', 'id'],
+                ADD_ATTR: ['data-target', 'data-lang', 'class', 'id'],
             });
 
             this.renderedContent = html;
@@ -731,6 +730,22 @@ function noteApp() {
         async postRender() {
             const preview = this.$refs.preview;
             if (!preview) return;
+
+            // Wrap code blocks in container + add language label
+            preview.querySelectorAll('pre.code-block').forEach(pre => {
+                if (pre.parentElement && pre.parentElement.classList.contains('code-block-wrapper')) return;
+                const lang = pre.getAttribute('data-lang') || '';
+                const wrapper = document.createElement('div');
+                wrapper.className = 'code-block-wrapper';
+                pre.parentNode.insertBefore(wrapper, pre);
+                wrapper.appendChild(pre);
+                if (lang) {
+                    const label = document.createElement('span');
+                    label.className = 'code-lang-label';
+                    label.textContent = lang;
+                    wrapper.appendChild(label);
+                }
+            });
 
             // Mermaid diagrams
             const mermaidBlocks = preview.querySelectorAll('code.language-mermaid');
