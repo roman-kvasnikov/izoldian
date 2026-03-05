@@ -668,38 +668,46 @@ function noteApp() {
             if (!preview) return;
 
             // Syntax highlighting for code blocks
-            preview.querySelectorAll('pre code:not(.language-mermaid)').forEach(block => {
-                if (block.classList.contains('hljs')) return;
+            setTimeout(() => {
+                const el = this.$refs.preview;
+                if (!el) return;
+                el.querySelectorAll('pre code:not(.language-mermaid)').forEach(block => {
+                    const pre = block.parentElement;
+                    if (!pre || pre.classList.contains('code-processed')) return;
+                    pre.classList.add('code-processed', 'code-block');
 
-                const pre = block.parentElement;
-                if (!pre || pre.classList.contains('code-processed')) return;
-                pre.classList.add('code-processed', 'code-block');
-
-                // Detect language for label
-                let lang = '';
-                for (const cls of block.classList) {
-                    if (cls.startsWith('language-')) {
-                        lang = cls.replace('language-', '');
-                        break;
+                    // Detect language for label
+                    let lang = '';
+                    for (const cls of block.classList) {
+                        if (cls.startsWith('language-')) {
+                            lang = cls.replace('language-', '');
+                            break;
+                        }
                     }
-                }
 
-                // Apply syntax highlighting directly on DOM element
-                hljs.highlightElement(block);
+                    // Apply syntax highlighting
+                    if (!block.classList.contains('hljs')) {
+                        try {
+                            hljs.highlightElement(block);
+                        } catch (e) {
+                            console.error('hljs error:', e);
+                        }
+                    }
 
-                // Wrap pre in container for sticky language label
-                const wrapper = document.createElement('div');
-                wrapper.className = 'code-block-wrapper';
-                pre.parentNode.insertBefore(wrapper, pre);
-                wrapper.appendChild(pre);
+                    // Wrap pre in container for sticky language label
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'code-block-wrapper';
+                    pre.parentNode.insertBefore(wrapper, pre);
+                    wrapper.appendChild(pre);
 
-                if (lang) {
-                    const label = document.createElement('span');
-                    label.className = 'code-lang-label';
-                    label.textContent = lang;
-                    wrapper.appendChild(label);
-                }
-            });
+                    if (lang) {
+                        const label = document.createElement('span');
+                        label.className = 'code-lang-label';
+                        label.textContent = lang;
+                        wrapper.appendChild(label);
+                    }
+                });
+            }, 0);
 
             // Mermaid diagrams
             const mermaidBlocks = preview.querySelectorAll('code.language-mermaid');
