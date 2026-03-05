@@ -1,7 +1,8 @@
-/* GitHub Dark Default Inspired Theme */
+/* GitHub Dark Default */
 /* @theme-type: dark */
 /* @hljs: github-dark */
-:root[data-theme='github-dark'] {
+
+:root[data-theme='github-dark-default'] {
 	--bg: #0d1117;
 	--sidebar: #010409;
 	--rail: #010409;
@@ -23,6 +24,5 @@
 	--input-bg: #0d1117;
 
 	--overlay: rgba(0, 0, 0, 0.65);
-
 	--active-item: rgba(47, 129, 247, 0.18);
 }
