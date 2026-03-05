@@ -714,25 +714,11 @@ function noteApp() {
                 html = '<pre>' + content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>';
             }
 
-            // Debug: check hljs spans before sanitize
-            const hasHljsBefore = html.includes('hljs-');
-
             // Sanitize
             html = DOMPurify.sanitize(html, {
                 ADD_TAGS: ['iframe'],
                 ADD_ATTR: ['data-target', 'class', 'id'],
             });
-
-            const hasHljsAfter = html.includes('hljs-');
-            if (hasHljsBefore && !hasHljsAfter) {
-                console.error('DOMPurify stripped hljs spans!');
-            }
-            if (hasHljsBefore) {
-                console.log('hljs spans present before sanitize:', hasHljsBefore, 'after:', hasHljsAfter);
-                // Show a sample of highlighted code HTML
-                const match = html.match(/<code class="hljs[^"]*">([\s\S]{0,500})/);
-                if (match) console.log('Sample hljs HTML:', match[1].substring(0, 300));
-            }
 
             this.renderedContent = html;
 
