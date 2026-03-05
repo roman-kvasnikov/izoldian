@@ -1,0 +1,21 @@
+/* GitHub Light Theme */
+/* @theme-type: light */
+/* @hljs: github */
+:root[data-theme="github-light"] {
+    --bg: #ffffff;
+    --sidebar: #f6f8fa;
+    --rail: #eaeef2;
+    --border: #d0d7de;
+    --text: #1f2328;
+    --text-bright: #1f2328;
+    --text-muted: #656d76;
+    --text-faint: #8b949e;
+    --accent: #0969da;
+    --editor-bg: #ffffff;
+    --preview-bg: #ffffff;
+    --surface: #f6f8fa;
+    --surface-hover: #eaeef2;
+    --input-bg: #f6f8fa;
+    --overlay: rgba(0, 0, 0, 0.3);
+    --active-item: rgba(9, 105, 218, 0.1);
+}

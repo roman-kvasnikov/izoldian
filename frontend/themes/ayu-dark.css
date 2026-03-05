@@ -1,0 +1,21 @@
+/* Ayu Dark Theme */
+/* @theme-type: dark */
+/* @hljs: agate */
+:root[data-theme="ayu-dark"] {
+    --bg: #0b0e14;
+    --sidebar: #0d1017;
+    --rail: #07090d;
+    --border: #1c2130;
+    --text: #bfbdb6;
+    --text-bright: #e6e1cf;
+    --text-muted: #73737a;
+    --text-faint: #565b66;
+    --accent: #e6b450;
+    --editor-bg: #0b0e14;
+    --preview-bg: #0b0e14;
+    --surface: #11151c;
+    --surface-hover: #1c2130;
+    --input-bg: #1c2130;
+    --overlay: rgba(0, 0, 0, 0.7);
+    --active-item: rgba(230, 180, 80, 0.12);
+}

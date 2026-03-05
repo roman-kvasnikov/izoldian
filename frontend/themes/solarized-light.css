@@ -1,0 +1,21 @@
+/* Solarized Light Theme */
+/* @theme-type: light */
+/* @hljs: stackoverflow-light */
+:root[data-theme="solarized-light"] {
+    --bg: #fdf6e3;
+    --sidebar: #eee8d5;
+    --rail: #e4ddc8;
+    --border: #d3cbb7;
+    --text: #586e75;
+    --text-bright: #073642;
+    --text-muted: #93a1a1;
+    --text-faint: #b0bab5;
+    --accent: #268bd2;
+    --editor-bg: #fdf6e3;
+    --preview-bg: #fdf6e3;
+    --surface: #eee8d5;
+    --surface-hover: #e4ddc8;
+    --input-bg: #eee8d5;
+    --overlay: rgba(0, 0, 0, 0.25);
+    --active-item: rgba(38, 139, 210, 0.12);
+}

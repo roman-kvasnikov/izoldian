@@ -1,0 +1,21 @@
+/* Rosé Pine Theme */
+/* @theme-type: dark */
+/* @hljs: github-dark */
+:root[data-theme="rose-pine"] {
+    --bg: #191724;
+    --sidebar: #1f1d2e;
+    --rail: #13111e;
+    --border: #26233a;
+    --text: #e0def4;
+    --text-bright: #e0def4;
+    --text-muted: #908caa;
+    --text-faint: #6e6a86;
+    --accent: #c4a7e7;
+    --editor-bg: #191724;
+    --preview-bg: #191724;
+    --surface: #26233a;
+    --surface-hover: #393552;
+    --input-bg: #393552;
+    --overlay: rgba(0, 0, 0, 0.6);
+    --active-item: rgba(196, 167, 231, 0.15);
+}
