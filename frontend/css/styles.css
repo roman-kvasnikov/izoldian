@@ -474,9 +474,13 @@ svg.w-5 { width: 1.6rem !important; height: 1.6rem !important; }
     }
 
     /* Ensure scrollable areas have bottom space above nav */
-    .overflow-y-auto,
-    textarea {
+    .overflow-y-auto {
         padding-bottom: 80px !important;
+    }
+
+    /* Editor textarea needs margin-bottom since padding doesn't work with flex-1 */
+    textarea {
+        margin-bottom: 80px !important;
     }
 
     /* Sidebar → overlay on mobile */
