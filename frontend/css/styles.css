@@ -470,7 +470,13 @@ svg.w-5 { width: 1.6rem !important; height: 1.6rem !important; }
 
     /* Main layout: full width, bottom padding for nav */
     #main-content {
-        padding-bottom: 56px !important;
+        padding-bottom: 64px !important;
+    }
+
+    /* Ensure preview/editor content has bottom space above nav */
+    .markdown-body,
+    #editor-area textarea {
+        padding-bottom: 64px !important;
     }
 
     /* Sidebar → overlay on mobile */
