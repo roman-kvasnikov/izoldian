@@ -40,6 +40,7 @@
 			}
 			html {
 				scroll-behavior: smooth;
+				overflow-x: hidden;
 			}
 			body {
 				font-family:
@@ -287,6 +288,7 @@
 			.features {
 				padding: 120px 0;
 				position: relative;
+				overflow: hidden;
 			}
 			.features-header {
 				text-align: center;
@@ -441,6 +443,7 @@
 				padding: 100px 0;
 				text-align: center;
 				position: relative;
+				overflow: hidden;
 			}
 			.cta-box {
 				background: var(--bg-2);
@@ -499,6 +502,10 @@
 
 			/* Responsive */
 			@media (max-width: 768px) {
+				.container,
+				nav .inner {
+					padding: 0 16px;
+				}
 				.features-grid {
 					grid-template-columns: 1fr;
 				}
@@ -510,6 +517,7 @@
 				}
 				nav .right-group {
 					gap: 8px;
+					flex-shrink: 0;
 				}
 				nav .right-group .btn-outline span {
 					display: none;
@@ -517,6 +525,10 @@
 				nav .right-group .btn-outline {
 					padding: 8px !important;
 					gap: 0;
+				}
+				nav .logo {
+					min-width: 0;
+					overflow: hidden;
 				}
 				.hero {
 					padding: 120px 0 60px;
