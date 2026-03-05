@@ -4,8 +4,8 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Izoldian</title>
-	<link rel="icon" type="image/svg+xml" href="/icon.svg" />
-	<link rel="apple-touch-icon" href="/icon.svg" />
+		<link rel="icon" type="image/svg+xml" href="/icon.svg" />
+		<link rel="apple-touch-icon" href="/icon.svg" />
 		<script src="https://cdn.tailwindcss.com"></script>
 		<script
 			defer
@@ -27,9 +27,12 @@
 			src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
 		></script>
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-	<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&display=swap" rel="stylesheet" />
-	<link rel="stylesheet" href="/css/styles.css" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&display=swap"
+			rel="stylesheet"
+		/>
+		<link rel="stylesheet" href="/css/styles.css" />
 	</head>
 	<body class="bg-gray-900 text-gray-100 h-screen overflow-hidden">
 		<div
@@ -60,6 +63,26 @@
 							stroke-linejoin="round"
 							stroke-width="2"
 							d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+						/>
+					</svg>
+				</button>
+				<button
+					@click="if(isMobile){sidebarOpen=true}; sidebarPanel='outline'"
+					:class="sidebarPanel === 'outline' ? 'bg-gray-700 text-blue-400' : 'text-gray-500 hover:text-gray-300'"
+					class="w-10 h-10 rounded-lg flex items-center justify-center transition"
+					:title="t('sidebar.outline')"
+				>
+					<svg
+						class="w-6 h-6"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M4 6h16M4 10h16M4 14h16M4 18h16"
 						/>
 					</svg>
 				</button>
@@ -104,26 +127,6 @@
 					</svg>
 				</button>
 				<button
-					@click="if(isMobile){sidebarOpen=true}; sidebarPanel='outline'"
-					:class="sidebarPanel === 'outline' ? 'bg-gray-700 text-blue-400' : 'text-gray-500 hover:text-gray-300'"
-					class="w-10 h-10 rounded-lg flex items-center justify-center transition"
-					:title="t('sidebar.outline')"
-				>
-					<svg
-						class="w-6 h-6"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M4 6h16M4 10h16M4 14h16M4 18h16"
-						/>
-					</svg>
-				</button>
-				<button
 					@click="toggleGraph()"
 					:class="showGraph ? 'bg-gray-700 text-blue-400' : 'text-gray-500 hover:text-gray-300'"
 					class="w-10 h-10 rounded-lg flex items-center justify-center transition"
@@ -146,8 +149,9 @@
 
 				<!-- Settings button -->
 				<button
-					@click="showSettings = true"
-					class="w-10 h-10 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-300 transition"
+					@click="if(isMobile){sidebarOpen=true}; sidebarPanel='settings'"
+					:class="sidebarPanel === 'settings' ? 'bg-gray-700 text-blue-400' : 'text-gray-500 hover:text-gray-300'"
+					class="w-10 h-10 rounded-lg flex items-center justify-center transition"
 					:title="t('settings.title')"
 				>
 					<svg
@@ -246,6 +250,27 @@
 										stroke-linejoin="round"
 										stroke-width="2"
 										d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
+									/>
+								</svg>
+							</button>
+						</template>
+						<template x-if="sidebarPanel === 'files'">
+							<button
+								@click="collapseAllFolders()"
+								class="text-gray-500 hover:text-gray-300 transition"
+								title="Collapse all"
+							>
+								<svg
+									class="w-5 h-5"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M4 6h16M4 10h16M4 14h10M4 18h6"
 									/>
 								</svg>
 							</button>
@@ -376,6 +401,70 @@
 						class="text-sm text-gray-500"
 						x-text="t('sidebar.no_headings')"
 					></div>
+				</div>
+
+				<!-- Settings Panel -->
+				<div
+					x-show="sidebarPanel === 'settings'"
+					class="flex-1 overflow-y-auto p-4"
+				>
+					<!-- Account -->
+					<div class="mb-5">
+						<label
+							class="block text-sm text-gray-500 mb-1"
+							x-text="t('settings.account')"
+						></label>
+						<div class="text-sm text-gray-300" x-text="user?.username"></div>
+					</div>
+
+					<!-- Theme -->
+					<div class="mb-4">
+						<label
+							class="block text-sm text-gray-500 mb-1.5"
+							x-text="t('settings.theme')"
+						></label>
+						<select
+							@change="setTheme($event.target.value)"
+							class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
+						>
+							<template x-for="th in availableThemes" :key="th.id">
+								<option
+									:value="th.id"
+									:selected="th.id === currentTheme"
+									x-text="th.name"
+								></option>
+							</template>
+						</select>
+					</div>
+
+					<!-- Language -->
+					<div class="mb-6">
+						<label
+							class="block text-sm text-gray-500 mb-1.5"
+							x-text="t('settings.language')"
+						></label>
+						<select
+							@change="loadLocale($event.target.value)"
+							class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
+						>
+							<template x-for="loc in availableLocales" :key="loc.code">
+								<option
+									:value="loc.code"
+									:selected="loc.code === currentLocale"
+									x-text="loc.flag + ' ' + loc.name"
+								></option>
+							</template>
+						</select>
+					</div>
+
+					<!-- Logout -->
+					<div class="pt-4 border-t border-gray-700">
+						<button
+							@click="logout()"
+							class="w-full px-4 py-2.5 text-sm text-red-400 hover:text-red-300 hover:bg-gray-800 rounded-lg transition text-left"
+							x-text="t('settings.logout')"
+						></button>
+					</div>
 				</div>
 			</div>
 
@@ -800,53 +889,6 @@
 					</div>
 				</div>
 
-				<!-- Mobile: floating toggle edit/preview -->
-				<button
-					x-show="isMobile && currentNote"
-					@click="viewMode = viewMode === 'preview' ? 'edit' : 'preview'; if(viewMode==='preview') renderMarkdown()"
-					id="mobile-toggle-view"
-					class="fixed z-30 w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition"
-					:class="viewMode === 'edit' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-200'"
-					style="top: 12px; right: 12px"
-				>
-					<!-- eye icon (preview) when in edit mode -->
-					<svg
-						x-show="viewMode === 'edit'"
-						class="w-6 h-6"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-						/>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-						/>
-					</svg>
-					<!-- pencil icon (edit) when in preview mode -->
-					<svg
-						x-show="viewMode === 'preview'"
-						class="w-6 h-6"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-						/>
-					</svg>
-				</button>
-
 				<!-- Empty state -->
 				<div
 					x-show="!currentNote"
@@ -1118,105 +1160,6 @@
 					</div>
 				</div>
 			</div>
-
-			<!-- Settings Dialog -->
-			<div
-				x-show="showSettings"
-				class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center"
-				@click.self="showSettings = false"
-			>
-				<div
-					class="bg-gray-800 border border-gray-700 rounded-xl p-6 w-[calc(100%-2rem)] max-w-[460px] shadow-xl"
-				>
-					<h3 class="text-lg font-medium mb-5 flex items-center gap-2">
-						<svg
-							class="w-5 h-5 text-gray-400"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-							/>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-							/>
-						</svg>
-						<span x-text="t('settings.title')"></span>
-					</h3>
-
-					<!-- Account -->
-					<div class="mb-5">
-						<label
-							class="block text-sm text-gray-500 mb-1"
-							x-text="t('settings.account')"
-						></label>
-						<div class="text-sm text-gray-300" x-text="user?.username"></div>
-					</div>
-
-					<!-- Theme -->
-					<div class="mb-4">
-						<label
-							class="block text-sm text-gray-500 mb-1.5"
-							x-text="t('settings.theme')"
-						></label>
-						<select
-							@change="setTheme($event.target.value)"
-							class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
-						>
-							<template x-for="th in availableThemes" :key="th.id">
-								<option
-									:value="th.id"
-									:selected="th.id === currentTheme"
-									x-text="th.name"
-								></option>
-							</template>
-						</select>
-					</div>
-
-					<!-- Language -->
-					<div class="mb-6">
-						<label
-							class="block text-sm text-gray-500 mb-1.5"
-							x-text="t('settings.language')"
-						></label>
-						<select
-							@change="loadLocale($event.target.value)"
-							class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
-						>
-							<template x-for="loc in availableLocales" :key="loc.code">
-								<option
-									:value="loc.code"
-									:selected="loc.code === currentLocale"
-									x-text="loc.flag + ' ' + loc.name"
-								></option>
-							</template>
-						</select>
-					</div>
-
-					<div
-						class="flex items-center justify-between pt-2 border-t border-gray-700"
-					>
-						<button
-							@click="logout()"
-							class="px-4 py-2 text-sm text-red-400 hover:text-red-300 transition"
-							x-text="t('settings.logout')"
-						></button>
-						<button
-							@click="showSettings = false"
-							class="px-4 py-2 text-sm text-gray-400 hover:text-gray-200"
-							x-text="t('common.close')"
-						></button>
-					</div>
-				</div>
-			</div>
-
 			<!-- Quick Switcher -->
 			<div
 				x-show="showQuickSwitch"

@@ -185,8 +185,13 @@ function noteApp() {
             this.sidebarOpen = !this.sidebarOpen;
         },
 
+        collapseAllFolders() {
+            this.expandedFolders = {};
+            this.fileTree = [...this.fileTree];
+        },
+
         sidebarTitle() {
-            const map = { files: 'sidebar.files', search: 'sidebar.search', tags: 'sidebar.tags', outline: 'sidebar.outline' };
+            const map = { files: 'sidebar.files', search: 'sidebar.search', tags: 'sidebar.tags', outline: 'sidebar.outline', settings: 'settings.title' };
             return this.t(map[this.sidebarPanel] || 'sidebar.files');
         },
 
@@ -409,7 +414,7 @@ function noteApp() {
                 var epath = this._esc(item.path);
                 var ename = this._esc(item.name);
                 if (item.type === 'folder') {
-                    var expanded = this.expandedFolders[item.path] !== false;
+                    var expanded = this.expandedFolders[item.path] === true;
                     var chevron = expanded ? 'transform rotate-90' : '';
                     var childStyle = expanded ? '' : 'display:none';
                     html += '<div>';
@@ -445,7 +450,7 @@ function noteApp() {
             const app = this;
             window._treeOpenNote = (path) => app.openNote(path);
             window._treeToggle = (path) => {
-                app.expandedFolders[path] = !(app.expandedFolders[path] !== false);
+                app.expandedFolders[path] = !app.expandedFolders[path];
                 // Force re-render of tree
                 app.fileTree = [...app.fileTree];
             };
