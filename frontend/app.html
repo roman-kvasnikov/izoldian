@@ -1156,6 +1156,11 @@
 								class="px-3 py-1.5 text-xs bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-200"
 							>Download</a>
 							<button
+								@click="if(confirm(t('common.delete') + ' ' + mediaViewerName + '?')){fetch('/api/media/'+encodePath(mediaViewerPath),{method:'DELETE'}).then(()=>{showMediaViewer=false;loadFileTree()})}"
+								class="px-3 py-1.5 text-xs bg-red-900/50 hover:bg-red-800 rounded-lg text-red-300"
+								x-text="t('common.delete')"
+							></button>
+							<button
 								@click="showMediaViewer = false"
 								class="text-gray-400 hover:text-white p-1"
 							>

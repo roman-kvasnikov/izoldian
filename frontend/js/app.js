@@ -44,6 +44,7 @@ function noteApp() {
         mediaViewerUrl: '',
         mediaViewerName: '',
         mediaViewerType: '',
+        mediaViewerPath: '',
         expandedFolders: {},
         searchQuery: '',
         searchResults: [],
@@ -528,6 +529,7 @@ function noteApp() {
                 const imageExts = ['png','jpg','jpeg','gif','webp','svg'];
                 const url = '/api/media/' + encodePath(mediaPath);
                 app.mediaViewerUrl = url;
+                app.mediaViewerPath = mediaPath;
                 app.mediaViewerName = mediaPath.split('/').pop();
                 if (imageExts.includes(ext)) {
                     app.mediaViewerType = 'image';

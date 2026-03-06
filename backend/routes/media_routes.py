@@ -55,6 +55,18 @@ async def upload_media(
     return {"path": rel_path, "ok": True}
 
 
+@router.delete("/{path:path}")
+async def delete_media(path: str, request: Request):
+    user_id = request.state.user["id"]
+    full_path = safe_path(user_id, path)
+
+    if not os.path.isfile(full_path):
+        raise HTTPException(404, "File not found")
+
+    os.remove(full_path)
+    return {"ok": True}
+
+
 @router.get("/{path:path}")
 async def get_media(path: str, request: Request):
     user_id = request.state.user["id"]
