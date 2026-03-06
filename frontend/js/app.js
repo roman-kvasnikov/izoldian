@@ -38,6 +38,8 @@ function noteApp() {
         newNoteName: '',
         newFolderName: '',
         targetFolder: '',
+        templates: [],
+        selectedTemplate: '',
         showMediaViewer: false,
         mediaViewerUrl: '',
         mediaViewerName: '',
@@ -520,11 +522,21 @@ function noteApp() {
         },
 
         // --- New Note ---
-        showNewNoteDialog(folder) {
+        async showNewNoteDialog(folder) {
             this.targetFolder = folder || '';
             this.showNewNote = true;
             this.newNoteName = '';
+            this.selectedTemplate = '';
             this.$nextTick(() => this.$refs.newNoteInput?.focus());
+            try {
+                const resp = await fetch('/api/notes/templates');
+                if (resp.ok) {
+                    const data = await resp.json();
+                    this.templates = data.templates;
+                }
+            } catch (e) {
+                this.templates = [];
+            }
         },
 
         async createNewNote() {
@@ -533,11 +545,25 @@ function noteApp() {
             let name = this.newNoteName.trim();
             if (!name.endsWith('.md')) name += '.md';
             const path = this.targetFolder ? this.targetFolder + '/' + name : name;
+            const title = this.newNoteName.trim().replace(/\.md$/, '');
+            const folder = this.targetFolder || '';
+
+            let content = `# ${title}\n\n`;
+            if (this.selectedTemplate) {
+                try {
+                    const params = new URLSearchParams({ title, folder });
+                    const resp = await fetch(`/api/notes/templates/render/${encodePath(this.selectedTemplate)}?${params}`);
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        content = data.content;
+                    }
+                } catch (e) { /* fallback to default */ }
+            }
 
             await fetch(`/api/notes/by-path/${encodePath(path)}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: `# ${this.newNoteName.trim()}\n\n` }),
+                body: JSON.stringify({ content }),
             });
 
             this.showNewNote = false;

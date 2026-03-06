@@ -20,7 +20,8 @@ async def search_notes(request: Request, q: str = Query(min_length=1)):
     except re.error:
         raise HTTPException(400, "Invalid search query")
 
-    for root, _, files in os.walk(base):
+    for root, dirs, files in os.walk(base):
+        dirs[:] = [d for d in dirs if d != "_templates"]
         for f in files:
             if not f.endswith(".md"):
                 continue

@@ -19,7 +19,8 @@ async def get_graph(request: Request):
     note_paths = {}  # name -> path mapping for link resolution
 
     # Collect all notes
-    for root, _, files in os.walk(base):
+    for root, dirs, files in os.walk(base):
+        dirs[:] = [d for d in dirs if d != "_templates"]
         for f in files:
             if not f.endswith(".md"):
                 continue
@@ -30,7 +31,8 @@ async def get_graph(request: Request):
             nodes.append({"id": rel_path, "label": name})
 
     # Build edges from wikilinks
-    for root, _, files in os.walk(base):
+    for root, dirs, files in os.walk(base):
+        dirs[:] = [d for d in dirs if d != "_templates"]
         for f in files:
             if not f.endswith(".md"):
                 continue

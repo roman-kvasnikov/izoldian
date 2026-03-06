@@ -982,8 +982,20 @@
 						@keydown.enter="createNewNote()"
 						type="text"
 						:placeholder="t('notes.note_name_placeholder')"
-						class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 text-white placeholder-gray-500 mb-4"
+						class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 text-white placeholder-gray-500 mb-3"
 					/>
+					<div x-show="templates.length > 0" class="mb-4">
+						<label class="block text-xs text-gray-500 mb-1" x-text="t('notes.template_label')"></label>
+						<select
+							x-model="selectedTemplate"
+							class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 text-white"
+						>
+							<option value="" x-text="t('notes.no_template')"></option>
+							<template x-for="tpl in templates" :key="tpl.path">
+								<option :value="tpl.path" x-text="tpl.name"></option>
+							</template>
+						</select>
+					</div>
 					<div class="flex gap-2 justify-end">
 						<button
 							@click="showNewNote = false"

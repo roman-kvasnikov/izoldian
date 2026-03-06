@@ -1,6 +1,7 @@
 import os
 import re
 import shutil
+from datetime import datetime
 
 import aiofiles
 import yaml
@@ -11,6 +12,8 @@ from models import MoveRequest, NoteContent
 from share import delete_token_for_note, update_token_path
 
 router = APIRouter(prefix="/api/notes", tags=["notes"])
+
+TEMPLATES_DIR = "_templates"
 
 
 def get_user_id(request: Request) -> str:
@@ -114,7 +117,11 @@ async def list_tags(request: Request):
     base = get_user_data_dir(user_id)
     all_tags: dict[str, int] = {}
 
-    for root, _, files in os.walk(base):
+    tpl_dir = os.path.realpath(os.path.join(base, TEMPLATES_DIR))
+    for root, dirs, files in os.walk(base):
+        if os.path.realpath(root).startswith(tpl_dir):
+            continue
+        dirs[:] = [d for d in dirs if d != TEMPLATES_DIR]
         for f in files:
             if not f.endswith(".md"):
                 continue
@@ -182,6 +189,135 @@ async def delete_note(path: str, request: Request):
     os.remove(full_path)
     delete_token_for_note(get_user_data_dir(user_id), path)
     return {"ok": True}
+
+
+DEFAULT_TEMPLATES = {
+    "Daily Note.md": """---
+tags: daily
+date: "{{date}}"
+---
+
+# {{date}} — {{title}}
+
+## Plan
+- [ ]
+
+## Notes
+
+
+## Summary
+
+""",
+    "Meeting Notes.md": """---
+tags: meeting
+date: "{{date}}"
+---
+
+# {{title}}
+
+**Date:** {{date}} {{time}}
+**Participants:**
+
+## Agenda
+1.
+
+## Discussion
+
+
+## Action Items
+- [ ]
+
+## Decisions
+
+""",
+    "Project.md": """---
+tags: project
+created: "{{date}}"
+status: active
+---
+
+# {{title}}
+
+## Goal
+
+
+## Tasks
+- [ ]
+
+## Notes
+
+
+## Links
+
+""",
+    "Weekly Review.md": """---
+tags: weekly, review
+date: "{{date}}"
+week:
+---
+
+# Weekly Review — {{date}}
+
+## Accomplished
+-
+
+## In Progress
+-
+
+## Blocked
+-
+
+## Next Week
+- [ ]
+
+## Reflections
+
+""",
+}
+
+
+@router.get("/templates")
+async def list_templates(request: Request):
+    user_id = get_user_id(request)
+    base = get_user_data_dir(user_id)
+    tpl_dir = os.path.join(base, TEMPLATES_DIR)
+
+    if not os.path.isdir(tpl_dir):
+        os.makedirs(tpl_dir, exist_ok=True)
+        for name, content in DEFAULT_TEMPLATES.items():
+            async with aiofiles.open(os.path.join(tpl_dir, name), "w", encoding="utf-8") as f:
+                await f.write(content.lstrip("\n"))
+
+    templates = []
+    for f in sorted(os.listdir(tpl_dir)):
+        if f.endswith(".md"):
+            templates.append({"name": f[:-3], "path": f"{TEMPLATES_DIR}/{f}"})
+    return {"templates": templates}
+
+
+@router.get("/templates/render/{path:path}")
+async def render_template(path: str, request: Request, title: str = "", folder: str = ""):
+    user_id = get_user_id(request)
+    full_path = safe_path(user_id, path)
+    if not os.path.isfile(full_path):
+        raise HTTPException(404, "Template not found")
+    async with aiofiles.open(full_path, "r", encoding="utf-8") as f:
+        content = await f.read()
+    now = datetime.now()
+    placeholders = {
+        "{{date}}": now.strftime("%Y-%m-%d"),
+        "{{time}}": now.strftime("%H:%M:%S"),
+        "{{datetime}}": now.strftime("%Y-%m-%d %H:%M:%S"),
+        "{{timestamp}}": str(int(now.timestamp())),
+        "{{year}}": str(now.year),
+        "{{month}}": str(now.month).zfill(2),
+        "{{day}}": str(now.day).zfill(2),
+        "{{title}}": title,
+        "{{folder}}": folder,
+    }
+    for key, val in placeholders.items():
+        content = content.replace(key, val)
+    return {"content": content}
 
 
 @router.post("/move")
