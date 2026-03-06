@@ -10,7 +10,9 @@
     "new_folder": "New folder",
     "no_tags": "No tags",
     "no_headings": "No headings",
-    "nothing_found": "Nothing found"
+    "nothing_found": "Nothing found",
+    "filtered_by_tags": "Filter",
+    "clear_filter": "Clear"
   },
   "editor": {
     "edit": "Editor",

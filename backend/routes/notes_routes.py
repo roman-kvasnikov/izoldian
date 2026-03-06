@@ -137,6 +137,37 @@ async def list_tags(request: Request):
     return {"tags": [{"name": k, "count": v} for k, v in sorted(all_tags.items())]}
 
 
+@router.get("/by-tags")
+async def notes_by_tags(request: Request, tags: str = ""):
+    """Get note paths that have ALL specified tags."""
+    user_id = get_user_id(request)
+    base = get_user_data_dir(user_id)
+    required = {t.strip() for t in tags.split(",") if t.strip()}
+    if not required:
+        return {"paths": []}
+
+    paths = []
+    tpl_dir = os.path.realpath(os.path.join(base, TEMPLATES_DIR))
+    for root, dirs, files in os.walk(base):
+        if os.path.realpath(root).startswith(tpl_dir):
+            continue
+        dirs[:] = [d for d in dirs if d != TEMPLATES_DIR]
+        for f in files:
+            if not f.endswith(".md"):
+                continue
+            full = os.path.join(root, f)
+            try:
+                async with aiofiles.open(full, "r", encoding="utf-8") as fh:
+                    content = await fh.read()
+                note_tags = set(extract_tags(content))
+                if required.issubset(note_tags):
+                    paths.append(os.path.relpath(full, base))
+            except Exception:
+                continue
+
+    return {"paths": paths}
+
+
 @router.get("/by-path/{path:path}")
 async def get_note(path: str, request: Request):
     user_id = get_user_id(request)

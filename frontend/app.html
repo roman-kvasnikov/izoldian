@@ -306,8 +306,19 @@
 					class="flex-1 overflow-y-auto p-2"
 				>
 					<div
+						x-show="tagFilterPaths !== null"
+						class="flex items-center justify-between mb-2 px-1"
+					>
+						<span class="text-xs text-blue-400" x-text="t('sidebar.filtered_by_tags') + ': ' + selectedTags.join(', ')"></span>
+						<button
+							@click="selectedTags = []; tagFilterPaths = null; fileTree = [...fileTree]"
+							class="text-xs text-gray-500 hover:text-gray-300"
+							x-text="t('sidebar.clear_filter')"
+						></button>
+					</div>
+					<div
 						x-ref="fileTreeContainer"
-						x-html="renderFileTreeHTML(fileTree, 0) || ''"
+						x-html="renderFileTreeHTML(filteredFileTree(), 0) || ''"
 					></div>
 				</div>
 
@@ -362,6 +373,17 @@
 					x-show="sidebarPanel === 'tags'"
 					class="flex-1 overflow-y-auto p-2"
 				>
+					<div
+						x-show="selectedTags.length > 0"
+						class="flex items-center justify-between mb-2 px-1"
+					>
+						<span class="text-xs text-blue-400" x-text="t('sidebar.filtered_by_tags') + ': ' + selectedTags.join(', ')"></span>
+						<button
+							@click="selectedTags = []; tagFilterPaths = null; fileTree = [...fileTree]"
+							class="text-xs text-gray-500 hover:text-gray-300"
+							x-text="t('sidebar.clear_filter')"
+						></button>
+					</div>
 					<div class="flex flex-wrap gap-2">
 						<template x-for="tag in allTags" :key="tag.name">
 							<button

@@ -49,6 +49,7 @@ function noteApp() {
         searchResults: [],
         allTags: [],
         selectedTags: [],
+        tagFilterPaths: null,
         outline: [],
         allNotes: [],
         quickSwitchQuery: '',
@@ -407,6 +408,28 @@ function noteApp() {
         },
 
         // --- File tree rendering (recursive) ---
+        filteredFileTree() {
+            if (!this.tagFilterPaths) return this.fileTree;
+            return this._filterTree(this.fileTree, this.tagFilterPaths);
+        },
+
+        _filterTree(items, allowedPaths) {
+            const result = [];
+            for (const item of items) {
+                if (item.type === 'folder') {
+                    const children = this._filterTree(item.children || [], allowedPaths);
+                    if (children.length > 0) {
+                        result.push({ ...item, children });
+                    }
+                } else if (item.type === 'file') {
+                    if (allowedPaths.has(item.path)) {
+                        result.push(item);
+                    }
+                }
+            }
+            return result;
+        },
+
         renderFileTreeHTML(items, depth) {
             try {
                 return this._buildTreeHTML(items || [], depth || 0);
@@ -959,13 +982,22 @@ function noteApp() {
             this.allTags = data.tags;
         },
 
-        toggleTagFilter(tag) {
+        async toggleTagFilter(tag) {
             const idx = this.selectedTags.indexOf(tag);
             if (idx >= 0) {
                 this.selectedTags.splice(idx, 1);
             } else {
                 this.selectedTags.push(tag);
             }
+            if (this.selectedTags.length === 0) {
+                this.tagFilterPaths = null;
+            } else {
+                const resp = await fetch(`/api/notes/by-tags?tags=${encodeURIComponent(this.selectedTags.join(','))}`);
+                const data = await resp.json();
+                this.tagFilterPaths = new Set(data.paths);
+                this.sidebarPanel = 'files';
+            }
+            this.fileTree = [...this.fileTree];
         },
 
         // Graph
