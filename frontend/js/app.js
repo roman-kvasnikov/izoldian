@@ -264,6 +264,7 @@ function noteApp() {
 
             this.unsaved = false;
             this.currentNote.content = this.editorContent;
+            this.loadTags();
         },
 
         // --- Format toolbar ---
